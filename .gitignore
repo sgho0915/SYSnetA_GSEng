@@ -70,3 +70,14 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+
+# 이상 기본적인 Unity gitignore
+# 추가사항
+
+# 일단 이미지 소스 걍 올림
+# Image 소스들은 추후에 최종 UI/UX 나오기 전까진 ignore 한다.
+#/[Aa]ssets/[Ii]mages/*
+
+# 테스트 빌드 찌꺼기 파일 ignore
+*BurstDebugInformation_DoNotShip/

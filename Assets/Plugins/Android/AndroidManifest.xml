@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+	package="com.unity3d.player"	
+	xmlns:tools="http://schemas.android.com/tools"
+	android:sharedUserId="Android.uid.system">
+	
+	<!--OTA 업데이트를 위한 권한-->
+	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+	<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+	
+	<!--와이파이 상태 확인을 위한 권한-->
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+	
+	<!--웹뷰 관련 권한-->
+	<uses-permission android:name="android.permission.CAMERA" />	
+
+
+	<uses-sdk android:minSdkVersion="23" android:targetSdkVersion="33" />
+	
+	<application android:usesCleartextTraffic="true">
+		
+		<activity android:name="com.unity3d.player.UnityPlayerActivity"
+                  android:theme="@style/UnityThemeSelector"
+				  android:hardwareAccelerated="true">
+			
+			<intent-filter>
+				
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+				
+			</intent-filter>
+			
+			<meta-data android:name="unityplayer.UnityActivity" android:value="true" />
+			
+		</activity>
+
+		<activity android:name="com.systronics.plugin.FileChooserActivity">			
+
+		</activity>
+
+		<activity android:name="com.systronics.plugin.RTSPPlayer" />
+		
+		<!--업데이트를 위한 FileProvider-->
+		<provider
+    android:name="androidx.core.content.FileProvider"
+    android:authorities="com.SYStronics.SYSnet_A.fileprovider"
+    android:exported="false"
+    android:grantUriPermissions="true"
+    tools:replace="android:authorities">
+			<meta-data
+				android:name="android.support.FILE_PROVIDER_PATHS"
+				android:resource="@xml/provider_paths" />
+		</provider>
+		
+	</application>
+</manifest>
