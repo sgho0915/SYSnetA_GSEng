@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "288353184334",
+    "project_id": "sysnet-android",
+    "storage_bucket": "sysnet-android.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:288353184334:android:74764f3c19859d241f711f",
+        "android_client_info": {
+          "package_name": "com.SYStronics.SYSnet_A"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuBPKfYAOB2aveeuNQQcSPzp1wHRj95Qg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
