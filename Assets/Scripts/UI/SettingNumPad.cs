@@ -14,6 +14,8 @@ public class SettingNumPad : MonoBehaviour
     public static TextMeshProUGUI txtRangeStr; // 범위. 기본내용은 $"범위 : {min}~{max}{unit}" 으로 구성됨
     public static Toggle toggleNoUse; // 사용 안함에 대한 토글
     public static TextMeshProUGUI txtNoUseStr; // 사용 안함 값에 대한 문자열
+    public static Toggle toggleSetValStr; // 사용 안함에 대한 토글
+    public static TextMeshProUGUI txtSetValStr; // 사용 안함 값에 대한 문자열
     public static Button btnOK; // 제어 명령 버튼(OK)
 
     public static Button btnCancel; //  창 닫기 버튼
@@ -45,8 +47,10 @@ public class SettingNumPad : MonoBehaviour
         txtSetValue = this.gameObject.transform.Find("NumPadParent/Center/ValueParent/ValueContainer/SetValueContainer/obj_CurrentValue/obj_Value/txt_Value").GetComponent<TextMeshProUGUI>();
         txtSetUnit = this.gameObject.transform.Find("NumPadParent/Center/ValueParent/ValueContainer/SetValueContainer/obj_CurrentValue/obj_Value/txt_Unit").GetComponent<TextMeshProUGUI>();
         txtRangeStr = this.gameObject.transform.Find("NumPadParent/Center/ValueParent/txt_RangeValue").GetComponent<TextMeshProUGUI>();
-        toggleNoUse = this.gameObject.transform.Find("NumPadParent/Center/ValueParent/Toggle_NoUse").GetComponent<Toggle>();
-        txtNoUseStr = this.gameObject.transform.Find("NumPadParent/Center/ValueParent/Toggle_NoUse/txt_NoUseStr").GetComponent<TextMeshProUGUI>();
+        toggleNoUse = this.gameObject.transform.Find("NumPadParent/Center/ValueParent/ToggleParent/Toggle_NoUse").GetComponent<Toggle>();
+        txtNoUseStr = this.gameObject.transform.Find("NumPadParent/Center/ValueParent/ToggleParent/Toggle_NoUse/txt_NoUseStr").GetComponent<TextMeshProUGUI>();
+        toggleSetValStr = this.gameObject.transform.Find("NumPadParent/Center/ValueParent/ToggleParent/Toggle_SetValStr").GetComponent<Toggle>();
+        txtSetValStr = this.gameObject.transform.Find("NumPadParent/Center/ValueParent/ToggleParent/Toggle_SetValStr/txt_SetValStr").GetComponent<TextMeshProUGUI>();
         btnOK = this.gameObject.transform.Find("NumPadParent/Bottom/KeyPadParent/FuncPad/btn_OK").GetComponent<Button>();
 
         btnCancel = this.gameObject.transform.Find("NumPadParent/Top/btn_Close").GetComponent<Button>();
@@ -92,7 +96,9 @@ public class SettingNumPad : MonoBehaviour
         txtSetUnit.text = string.Empty;        
         txtRangeStr.text = string.Empty;
         txtNoUseStr.text = string.Empty;
+        txtSetValStr.text = string.Empty;
         toggleNoUse.isOn = false;
+        toggleSetValStr.isOn = false;
         isNumpadInit = true;
         LayoutRebuilder.ForceRebuildLayoutImmediate(setValContainer.GetComponent<RectTransform>());        
     }

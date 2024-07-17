@@ -279,6 +279,72 @@ public class XMLParser : MonoBehaviour
         return result;
     }
 
+    public Dictionary<string, object> GetAllOutputAttributes(string xml, string iid, string cid)
+    {
+        var result = new Dictionary<string, object>();
+        XmlDocument xmlDoc = new XmlDocument();
+
+        try
+        {
+            xmlDoc.LoadXml(xml);
+        }
+        catch (Exception e)
+        {
+            Debug.Log($"{iid}, {cid} : {e}");
+        }
+
+        // protocol 태그의 속성 분석
+        XmlNode protocolNode = xmlDoc.SelectSingleNode("/protocol");
+        if (protocolNode != null)
+        {
+            var protocolAttributes = new Dictionary<string, string>();
+            foreach (XmlAttribute attr in protocolNode.Attributes)
+            {
+                protocolAttributes[attr.Name] = attr.Value;
+            }
+            result["protocol"] = protocolAttributes;
+
+            // group 태그들의 분석
+            var groups = new Dictionary<string, Dictionary<string, object>>();
+            foreach (XmlNode groupNode in protocolNode.SelectNodes("group[@alt='output']"))
+            {
+                var groupAttributes = new Dictionary<string, string>();
+                foreach (XmlAttribute attr in groupNode.Attributes)
+                {
+                    groupAttributes[attr.Name] = attr.Value;
+                }
+
+                // tag 태그들의 분석
+                var tags = new Dictionary<string, Dictionary<string, string>>();
+                foreach (XmlNode tagNode in groupNode.SelectNodes("tag"))
+                {
+                    var tagAttributes = new Dictionary<string, string>();
+                    foreach (XmlAttribute attr in tagNode.Attributes)
+                    {
+                        tagAttributes[attr.Name] = attr.Value;
+                    }
+                    if (tagAttributes.ContainsKey("name"))
+                    {
+                        tags[tagAttributes["name"]] = tagAttributes;
+                    }
+                }
+
+                if (groupAttributes.ContainsKey("title"))
+                {
+                    groups[groupAttributes["title"]] = new Dictionary<string, object>
+                    {
+                        { "attributes", groupAttributes },
+                        { "tags", tags }
+                    };
+                }
+            }
+
+            result["groups"] = groups;
+        }
+
+        return result;
+    }
+
     public Dictionary<string, Dictionary<string, string>> GetSetGroupAttributes(string xml)
     {
         // 결과를 저장할 딕셔너리 초기화

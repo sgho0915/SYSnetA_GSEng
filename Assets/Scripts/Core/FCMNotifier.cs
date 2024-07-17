@@ -12,12 +12,22 @@ public class FCMNotifier : MonoBehaviour
     private const string FCM_URL = "https://fcm.googleapis.com/v1/projects/sysnet-android/messages:send";
     private string accessToken;
 
-    private void Start()
+    public static FCMNotifier Instance {  get; private set; }
+
+    private void Awake()
     {
-        StartCoroutine(GetAccessTokenAndSendMessage());
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
-    private IEnumerator GetAccessTokenAndSendMessage()
+
+    public IEnumerator GetAccessTokenAndSendMessage(string token, string title, string body)
     {
         Task<string> task = GetAccessTokenAsync();
         while (!task.IsCompleted)
@@ -32,7 +42,7 @@ public class FCMNotifier : MonoBehaviour
         }
 
         accessToken = task.Result;
-        SendFCMMessage("cveygNPOS9ygDBPc1sUGWw:APA91bEs8bmdLO8Uoyl3ZY8eyCT2o7zOTwBZ8LhJUG_CJwCru1Cn80FfJlh17mXM4Eb871Br0-88nOUQ4sQez3aRzj5Jkh1PJ5UUbws8jiFjp5z5KATljcz7fXgEo86qO68XK5Ig24UG", "유니티 푸시 전송 테스트 title", "유니티 푸시 테스트 body");
+        SendFCMMessage($"{token}", $"{title}", $"{body}");
     }
 
     private async Task<string> GetAccessTokenAsync()
@@ -56,6 +66,18 @@ public class FCMNotifier : MonoBehaviour
 
     private IEnumerator SendNotification(string token, string title, string body)
     {
+        //var message = new
+        //{
+        //    message = new
+        //    {
+        //        token = token,
+        //        notification = new
+        //        {
+        //            title = title,
+        //            body = body
+        //        }
+        //    }
+        //};
         var message = new
         {
             message = new
@@ -65,6 +87,10 @@ public class FCMNotifier : MonoBehaviour
                 {
                     title = title,
                     body = body
+                },
+                android = new
+                {
+                    priority = "high"
                 }
             }
         };
@@ -82,7 +108,7 @@ public class FCMNotifier : MonoBehaviour
 
         if (request.result == UnityWebRequest.Result.Success)
         {
-            Debug.Log("FCM 메시지 전송 성공");
+            Debug.Log($"FCM 메시지 전송 성공 : {title}");
         }
         else
         {

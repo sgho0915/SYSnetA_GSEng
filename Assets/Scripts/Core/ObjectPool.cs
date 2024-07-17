@@ -52,6 +52,9 @@ public class ObjectPool : MonoBehaviour
     public GameObject controllerSetContainerPrefab; // 컨트롤러 프리팹
     public GameObject protocolTogglePrefab; // 프로토콜 토글 프리팹
 
+    [Header("유저관리 설정 인스턴스")]
+    public GameObject userPrefab; // 프로토콜 토글 프리팹
+
     [Header("평면도 패널 설정 인스턴스")]
     public GameObject fppTrendTogglePrefab; // 평면도 패널 프리팹
     public GameObject fppImagePrefab; // 평면도 이미지 프리팹
@@ -97,6 +100,9 @@ public class ObjectPool : MonoBehaviour
     public List<GameObject> f_ProtocolToggleObjects = new List<GameObject>();
     public List<GameObject> ControllerSetContainerObjects = new List<GameObject>();
     public List<GameObject> ProtocolToggleObjects = new List<GameObject>();
+
+    // 유저관리 인스턴스    
+    public List<GameObject> UserObjects = new List<GameObject>();
 
     // 평면도 트렌드 토글 인스턴스
     public List<GameObject> fppTrendToggleObjects = new List<GameObject>();
@@ -337,6 +343,23 @@ public class ObjectPool : MonoBehaviour
         // 필요하면 추가 오브젝트 생성
         GameObject newObj = Instantiate(protocolTogglePrefab, ControllerSettingManager.protocolListContent);
         ProtocolToggleObjects.Add(newObj);
+        return newObj;
+    }
+
+    public GameObject GetUserElement()
+    {
+        foreach (var obj in UserObjects)
+        {
+            if (!obj.activeSelf)
+            {
+                obj.SetActive(true);
+                return obj;
+            }
+        }
+
+        // 필요하면 추가 오브젝트 생성
+        GameObject newObj = Instantiate(userPrefab, UserSettingManager.userContent);
+        UserObjects.Add(newObj);
         return newObj;
     }
 

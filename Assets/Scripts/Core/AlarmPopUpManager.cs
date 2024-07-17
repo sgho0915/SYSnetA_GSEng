@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using System.Data;
 using DG.Tweening;
 using System.Security.Cryptography;
+using System;
 
 public class AlarmPopUpManager : MonoBehaviour
 {
@@ -220,6 +221,36 @@ public class AlarmPopUpManager : MonoBehaviour
                     alarmElementInstance.transform.Find("txt_AlarmOccurTime").GetComponent<TextMeshProUGUI>().text = occuredTime;
                     alarmElementInstance.transform.Find("txt_AlarmDescription").GetComponent<TextMeshProUGUI>().text = desc;
                 }
+
+                // occuredTime을 DateTime 형식으로 변환
+                DateTime alarmTime;
+                if (!DateTime.TryParse(occuredTime, out alarmTime))
+                {
+                    Debug.LogError($"Invalid date format: {occuredTime}");
+                    continue;
+                }
+
+                // 현재 시간과 비교하여 1분 이상 차이나면 푸시 알림을 보내지 않음
+                if ((DateTime.Now - alarmTime).TotalMinutes > 1)
+                {
+                    continue;
+                }
+
+                // 푸시 알림 전송
+                DataTable tableUser = ClientDatabase.FetchUserData().Tables[0];
+                foreach (DataRow userRow in tableUser.Rows)
+                {
+                    string userRecvPush = userRow["FLD_RECV_PUSH"].ToString();
+                    string userFCMToken = userRow["FLD_FCM_TOKEN"].ToString();
+
+                    if (userRecvPush == "1" && userFCMToken != string.Empty)
+                    {
+                        StartCoroutine(FCMNotifier.Instance.GetAccessTokenAndSendMessage(userFCMToken, $"경보 발생", $"{cname}에서 {desc} : [{occuredTime}]"));
+                    }
+                }
+
+                // 알람이 처리되었음을 기록
+                processedAlarmIdentifiers.Add(targetName);
             }
 
             // 적어도 하나의 새로운 알람이 있으면 패널을 활성화
@@ -227,7 +258,8 @@ public class AlarmPopUpManager : MonoBehaviour
             {
                 alarmPanel.SetActive(true);
                 StartChangeBGColor();
-                
+
+                // 경보 사운드 TTS 재생
                 if (alarmSoundCoroutine == null)
                 {
                     if(SettingManager.alarmSound == 4)

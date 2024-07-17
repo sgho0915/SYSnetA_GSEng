@@ -514,14 +514,14 @@ public class ClientDatabase : MonoBehaviour
             arrShowAddr = showAddr.Split(',');
             
 
-            if (pkey == "UC0224150200401102" || pkey == "02240601-001-00-208" || pkey == "UC0815120104610507")
-                controllerIcon.sprite = controllerIconImgList[0]; // 풀무원, 부성챔버, 표준 유니트쿨러
-            else if (pkey == "07152101-011-00-170")
-                controllerIcon.sprite = controllerIconImgList[1]; // TIC-4M
+            if (pkey == "UC0224150200401102" || pkey == "02240601-001-00-208" || pkey == "UC0815120104610507" || pkey == "UC0713020103611349")
+                controllerIcon.sprite = controllerIconImgList[0]; // 유니트쿨러
+            else if (pkey == "sensor")
+                controllerIcon.sprite = controllerIconImgList[1]; // 센서
             else if (pkey == "PRDPC3HL20160317")
-                controllerIcon.sprite = controllerIconImgList[2]; // 부성 SPG
-            else if (pkey == "STHCR5NF0513210100500205")
-                controllerIcon.sprite = controllerIconImgList[3]; // STH-CR5N_F
+                controllerIcon.sprite = controllerIconImgList[2]; // 압력센서
+            else if (pkey == "STHCR5NF0513210100500205" || pkey == "07152101-011-00-170")
+                controllerIcon.sprite = controllerIconImgList[3]; // 온습도센서
             else
                 controllerIcon.sprite = controllerIconImgList[0]; // 기본
 
@@ -566,10 +566,13 @@ public class ClientDatabase : MonoBehaviour
             string xml = string.Empty;
             string systemSize = string.Empty;
             string systemAddr = string.Empty;
-            int irawValue = 0;
-            
+            string outputSize = string.Empty;
+            string outputAddr = string.Empty;
+            int iSystemRawValue = 0;
+            int iOutputRawValue = 0;
 
-            if (pkey == "UC0815120104610507")
+
+            if (pkey == "UC0815120104610507") // 표준 유니트쿨러 5.04~5.07
             {
                 foreach (DataRow pt in protocolListData.Tables[0].Rows)
                 {
@@ -595,12 +598,13 @@ public class ClientDatabase : MonoBehaviour
                         systemAddr = tagAttributes["addr"];
                         systemSize = tagAttributes["size"];
                         ParsePollingData(iid, cid);
-                        irawValue = int.Parse(systemAddr) < 200 ? parsedPollingData[int.Parse(systemAddr)] : parsedPollingData[int.Parse(systemAddr) - 200];
+                        iSystemRawValue = int.Parse(systemAddr) < 200 ? parsedPollingData[int.Parse(systemAddr)] : parsedPollingData[int.Parse(systemAddr) - 200];
                     }
                 }
 
-                string binaryValue = Convert.ToString(irawValue, 2).PadLeft(8, '0');
+                string binaryValue = Convert.ToString(iSystemRawValue, 2).PadLeft(8, '0');
                 char[] reversedBinary = binaryValue.Reverse().ToArray(); // 문자열을 역순으로 만듦
+
 
                 if (systemSize == "u1" || systemSize == "u2")
                 {
@@ -614,6 +618,73 @@ public class ClientDatabase : MonoBehaviour
                     status.IsCool = reversedBinary[2] == '1';
                     status.IsFan = reversedBinary[4] == '1';
                     status.IsHeat = reversedBinary[6] == '1';
+                    status.IsHumi = false;
+                    status.IsDehumi = false;
+                }
+            }
+            else if (pkey == "UC0713020103611349") //표준 유니트쿨러 분리형 1스텝 3.49
+            {
+                foreach (DataRow pt in protocolListData.Tables[0].Rows)
+                {
+                    // KEY 필드의 값이 pkey와 일치하는지 확인
+                    if (pt["KEY"].ToString() == pkey)
+                    {
+                        // XML 필드의 값을 xml 변수에 할당
+                        xml = pt["XML"].ToString();
+                        break; // 조건에 맞는 행을 찾으면 루프 종료
+                    }
+                }
+
+                var systemAttributes = XMLParser.Instance.GetAllSystemAttributes(xml, iid, cid);
+                foreach (var group in (Dictionary<string, Dictionary<string, object>>)systemAttributes["groups"])
+                {
+                    var attributes = (Dictionary<string, string>)group.Value["attributes"];
+
+                    var tags = (Dictionary<string, Dictionary<string, string>>)group.Value["tags"];
+                    foreach (var tag in tags)
+                    {
+                        var tagAttributes = tag.Value;
+                        systemAddr = tagAttributes["addr"];
+                        systemSize = tagAttributes["size"];
+                        ParsePollingData(iid, cid);
+                        iSystemRawValue = int.Parse(systemAddr) < 200 ? parsedPollingData[int.Parse(systemAddr)] : parsedPollingData[int.Parse(systemAddr) - 200];
+                    }
+                }
+
+                var outputAttributes = XMLParser.Instance.GetAllOutputAttributes(xml, iid, cid);
+                foreach (var group in (Dictionary<string, Dictionary<string, object>>)outputAttributes["groups"])
+                {
+                    var attributes = (Dictionary<string, string>)group.Value["attributes"];
+
+                    var tags = (Dictionary<string, Dictionary<string, string>>)group.Value["tags"];
+                    foreach (var tag in tags)
+                    {
+                        var tagAttributes = tag.Value;
+                        outputAddr = tagAttributes["addr"];
+                        outputSize = tagAttributes["size"];
+                        ParsePollingData(iid, cid);
+                        iOutputRawValue = int.Parse(outputAddr) < 200 ? parsedPollingData[int.Parse(outputAddr)] : parsedPollingData[int.Parse(outputAddr) - 200];
+                    }
+                }
+
+                string binaryValueSystem = Convert.ToString(iSystemRawValue, 2).PadLeft(8, '0');
+                char[] reversedBinarySystem = binaryValueSystem.Reverse().ToArray(); // 문자열을 역순으로 만듦
+                string binaryValueOutput = Convert.ToString(iOutputRawValue, 2).PadLeft(8, '0');
+                char[] reversedBinaryOutput = binaryValueOutput.Reverse().ToArray(); // 문자열을 역순으로 만듦
+
+
+                if (systemSize == "u1" || systemSize == "u2")
+                {
+                    //Debug.Log($"{idKey}, {systemAddr}, {systemSize}, {irawValue}, {binaryValue}");
+                    status.IsConnTrying = false;
+                    status.IsConn = specificRealTimeData.Tables[0].Rows[0]["CONN"].ToString() == "1" ? true : false;
+                    status.IsAlarm = int.Parse(specificRealTimeData.Tables[0].Rows[0]["ALARM"].ToString()) >= int.Parse("1") ? true : false;
+                    status.IsPower = specificRealTimeData.Tables[0].Rows[0]["POWER"].ToString() == "1" ? true : false;
+                    status.IsRun = reversedBinarySystem[0] == '1';
+                    status.IsDefrost = reversedBinarySystem[1] == '1';
+                    status.IsCool = reversedBinaryOutput[1] == '1';
+                    status.IsFan = reversedBinaryOutput[0] == '1';
+                    status.IsHeat = reversedBinaryOutput[3] == '1' || reversedBinaryOutput[4] == '1';
                     status.IsHumi = false;
                     status.IsDehumi = false;
                 }
@@ -676,8 +747,8 @@ public class ClientDatabase : MonoBehaviour
                                 string addr = strTrendParts[3];
                                 string multiply = strTrendParts[4];
 
-                                if (strTrendParts[5] != null && strTrendParts[5] == "y" && pkey == "PRDPC3HL20160317")
-                                    continue;
+                                //if (strTrendParts[5] != null && strTrendParts[5] == "y" && pkey == "PRDPC3HL20160317")
+                                //    continue;
 
                                 string trendObjectName = $"TrendGrid_{iid}_{cid}_{addr}";
 
@@ -982,12 +1053,14 @@ public class ClientDatabase : MonoBehaviour
             showAddr = specificControllerData.Tables[0].Rows[0]["SHOW_ADDR"].ToString();
             arrShowAddr = showAddr.Split(',');
 
-            if (pkey == "UC0224150200401102" || pkey == "02240601-001-00-208" || pkey == "UC0815120104610507")
-                controllerIcon.sprite = controllerIconImgList[0]; // 풀무원, 부성챔버, 표준 유니트쿨러
-            else if (pkey == "07152101-011-00-170" || pkey == "STHCR5NF0513210100500205")
-                controllerIcon.sprite = controllerIconImgList[1]; // TIC-4M, STH-CR5N_F
+            if (pkey == "UC0224150200401102" || pkey == "02240601-001-00-208" || pkey == "UC0815120104610507" || pkey == "UC0713020103611349")
+                controllerIcon.sprite = controllerIconImgList[0]; // 유니트쿨러
+            else if (pkey == "sensor")
+                controllerIcon.sprite = controllerIconImgList[1]; // 센서
             else if (pkey == "PRDPC3HL20160317")
-                controllerIcon.sprite = controllerIconImgList[2]; // 부성 SPG
+                controllerIcon.sprite = controllerIconImgList[2]; // 압력센서
+            else if (pkey == "STHCR5NF0513210100500205" || pkey == "07152101-011-00-170")
+                controllerIcon.sprite = controllerIconImgList[3]; // 온습도센서
             else
                 controllerIcon.sprite = controllerIconImgList[0]; // 기본
 
@@ -1171,6 +1244,13 @@ public class ClientDatabase : MonoBehaviour
     private void ChangeDesignControllerGridInstance(GameObject controllerInstance, ControllerStatus status, string iid, string cid, string pkey)
     {
         Outline controllerOutline = controllerInstance.GetComponent<Outline>();
+        GameObject parentCool = controllerInstance.transform.Find("obj_UpperOfController/obj_ControllerStatusIcon/Status_Cool").gameObject;
+        GameObject parentFan = controllerInstance.transform.Find("obj_UpperOfController/obj_ControllerStatusIcon/Status_Fan").gameObject;
+        GameObject parentRun = controllerInstance.transform.Find("obj_UpperOfController/obj_ControllerStatusIcon/Status_Run").gameObject;
+        GameObject parentAlarm = controllerInstance.transform.Find("obj_UpperOfController/obj_ControllerStatusIcon/Status_Alarm").gameObject;
+        GameObject parentHeat = controllerInstance.transform.Find("obj_UpperOfController/obj_ControllerStatusIcon/Status_Heat").gameObject;
+        GameObject parentDefrost = controllerInstance.transform.Find("obj_UpperOfController/obj_ControllerStatusIcon/Status_Defrost").gameObject;
+
         GameObject statusCool_On = controllerInstance.transform.Find("obj_UpperOfController/obj_ControllerStatusIcon/Status_Cool/Img_On").gameObject;
         GameObject statusCool_Off = controllerInstance.transform.Find("obj_UpperOfController/obj_ControllerStatusIcon/Status_Cool/Img_Off").gameObject;
         GameObject statusFan_On = controllerInstance.transform.Find("obj_UpperOfController/obj_ControllerStatusIcon/Status_Fan/Img_On").gameObject;
@@ -1315,10 +1395,13 @@ public class ClientDatabase : MonoBehaviour
             }
         }
 
-        
 
-        if (pkey == "07152101-011-00-170")
+        // TIC-4M 1.70 예외처리
+        if (pkey == "07152101-011-00-170") 
         {
+            parentCool.SetActive(false);
+            parentHeat.SetActive(false);            
+
             string[] arrCtrlName = controllerInstance.name.Split('_');
             string arrIID = arrCtrlName[1];
             string arrCID = arrCtrlName[2];
@@ -1326,7 +1409,7 @@ public class ClientDatabase : MonoBehaviour
             if (arrIID == iid && arrCID == cid)
             {
                 ParsePollingData(iid, cid);
-                int rawValue = parsedPollingData[24];
+                int rawValue = parsedPollingData[24]; // 시스템상태
                 bool isRunBitSet = (rawValue & (1 << 0)) != 0;
                 bool isDefBitSet = (rawValue & (1 << 1)) != 0;
 
@@ -1345,10 +1428,6 @@ public class ClientDatabase : MonoBehaviour
                         statusDefrost_Off.SetActive(false);
                         controllerInstance.GetComponent<Image>().color = Color.white;
                         ChangeTrendTextColor(controllerInstance, defrostColor, iid, cid);
-                        //if (!defrostGridCoroutines.ContainsKey(controllerInstance) || defrostGridCoroutines[controllerInstance] == null)
-                        //{
-                        //    defrostGridCoroutines[controllerInstance] = StartCoroutine(IPlayGridDefrostAnim(controllerInstance));
-                        //}
                     }
                 }
                 else
@@ -1360,11 +1439,48 @@ public class ClientDatabase : MonoBehaviour
                     controllerInstance.GetComponent<Image>().color = Color.white;
                     ChangeTrendTextColor(controllerInstance, stopColor, iid, cid);
                 }
+
+                if (status.IsAlarm)
+                {
+                    statusAlarm_On.SetActive(true);
+                    statusAlarm_Off.SetActive(false);
+                    imgControllerIconBG.color = alarmColor;
+                    controllerOutline.effectColor = alarmColor;
+                    txtControllerName.color = normalBlackColor;
+                    controllerInstance.GetComponent<Image>().color = Color.white;
+                    ChangeTrendTextColor(controllerInstance, alarmColor, iid, cid);
+                }
+                else
+                {
+                    if (status.IsConnTrying || status.IsConnChecking)
+                    {
+                        statusAlarm_On.SetActive(false);
+                        statusAlarm_Off.SetActive(true);
+                        imgControllerIconBG.color = stopColor;
+                        txtControllerName.color = stopColor;
+                        controllerInstance.GetComponent<Image>().color = stopBGColor;
+                        ChangeTrendTextColor(controllerInstance, stopBGColor, iid, cid);
+                    }
+                    else
+                    {
+                        statusAlarm_On.SetActive(false);
+                        statusAlarm_Off.SetActive(true);
+                        txtControllerName.color = normalBlackColor;
+                        controllerInstance.GetComponent<Image>().color = Color.white;
+                    }
+                }
             }
         }
 
+        // SPG-FC, 온습도 센서 STH-CR5N_F 2.05 예외처리
         if (pkey == "PRDPC3HL20160317" || pkey == "STHCR5NF0513210100500205")
         {
+            parentCool.SetActive(false);
+            parentRun.SetActive(false);
+            parentFan.SetActive(false);
+            parentHeat.SetActive(false);
+            parentDefrost.SetActive(false);
+
             statusRun_On.SetActive(false);
             statusRun_Off.SetActive(false);
             statusCool_On.SetActive(false);
@@ -1382,36 +1498,81 @@ public class ClientDatabase : MonoBehaviour
             controllerInstance.GetComponent<Image>().color = Color.white;
             ChangeTrendTextColor(controllerInstance, colorBlue, iid, cid);
 
-            if (status.IsConnTrying || status.IsConnChecking)
+            if (status.IsAlarm)
             {
-                statusAlarm_On.SetActive(false);
+                statusAlarm_On.SetActive(true);
                 statusAlarm_Off.SetActive(false);
-                txtControllerName.color = stopColor;
-                imgControllerIconBG.color = stopColor;
-                controllerInstance.GetComponent<Image>().color = stopBGColor;
-                ChangeTrendTextColor(controllerInstance, stopBGColor, iid, cid);
+                imgControllerIconBG.color = alarmColor;
+                controllerOutline.effectColor = alarmColor;
+                txtControllerName.color = normalBlackColor;
+                controllerInstance.GetComponent<Image>().color = Color.white;
+                ChangeTrendTextColor(controllerInstance, alarmColor, iid, cid);
             }
             else
             {
-                statusAlarm_On.SetActive(false);
-                statusAlarm_Off.SetActive(false);
-                txtControllerName.color = normalBlackColor;
-                controllerInstance.GetComponent<Image>().color = Color.white;
-                ChangeTrendTextColor(controllerInstance, colorBlue, iid, cid);
+                if (status.IsConnTrying || status.IsConnChecking)
+                {
+                    statusAlarm_On.SetActive(false);
+                    statusAlarm_Off.SetActive(true);
+                    imgControllerIconBG.color = stopColor;
+                    txtControllerName.color = stopColor;
+                    controllerInstance.GetComponent<Image>().color = stopBGColor;
+                    ChangeTrendTextColor(controllerInstance, stopBGColor, iid, cid);
+                }
+                else
+                {
+                    statusAlarm_On.SetActive(false);
+                    statusAlarm_Off.SetActive(true);
+                    txtControllerName.color = normalBlackColor;
+                    controllerInstance.GetComponent<Image>().color = Color.white;
+                    //ChangeTrendTextColor(controllerInstance, colorBlue, iid, cid);
+                }
             }
         }
     }
 
     private void ChangeTrendTextColor(GameObject controllerInstance, Color color, string iid, string cid)
-    {      
-        
-        GameObject TrendContent = controllerInstance.transform.Find("obj_FLD_StatusValueScrollView/Scroll View/Viewport/Content").gameObject;
+    {
+        if (controllerInstance == null)
+        {
+            Debug.LogError("controllerInstance is null");
+            return;
+        }
+
+        Transform contentTransform = controllerInstance.transform.Find("obj_FLD_StatusValueScrollView/Scroll View/Viewport/Content");
+        if (contentTransform == null)
+        {
+            //Debug.LogError($"Content transform not found : {controllerInstance.name}, {iid}, {cid}");
+            return;
+        }
+
+        GameObject TrendContent = contentTransform.gameObject;
+        if (TrendContent == null)
+        {
+            Debug.LogError("TrendContent is null");
+            return;
+        }
 
         foreach (Transform child in TrendContent.transform)
         {
-            child.gameObject.transform.Find("obj_Value/txt_Value").GetComponent<TextMeshProUGUI>().color = color;
+            Transform valueTransform = child.Find("obj_Value/txt_Value");
+            if (valueTransform == null)
+            {
+                Debug.Log("Value transform not found for child: " + child.name);
+                continue;
+            }
+
+            TextMeshProUGUI textComponent = valueTransform.GetComponent<TextMeshProUGUI>();
+            if (textComponent == null)
+            {
+                Debug.LogError("TextMeshProUGUI component not found on obj_Value/txt_Value");
+                continue;
+            }
+
+            textComponent.color = color;
         }
     }
+
 
     // List 컨트롤러 인스턴스 아웃라인, 상태 아이콘 업데이트
     private void ChangeDesignControllerListInstance(GameObject controllerInstance, ControllerStatus status, string pkey, string iid, string cid)
@@ -1769,7 +1930,18 @@ public class ClientDatabase : MonoBehaviour
         // 패킷 데이터 없음(IsConnChecking) : 마지막 업데이트 시간과 현재 시간이 1분 이상 차이가 나면서 PACKET, STR_DATA 필드에 데이터가 없음
         // 패킷 데이터 받은적 있음(IsConnTrying) : 마지막 업데이트 시간과 현재 시간이 1분 이상 차이가 나면서 PACKET, STR_DATA 필드에 데이터가 있음, 업데이트는 안되는중
         controllerInstance.GetComponent<Button>().onClick.RemoveAllListeners();
-        if (status.IsConnChecking || status.IsConnTrying)
+
+        // 컨트롤러가 실제로 데이터를 받고있어 realtime 테이블에 존재하는지 확인
+        //bool bControllerExist = realTimeData.Tables[0].AsEnumerable().Any(row => row.Field<int>("ID").ToString() == iid && row.Field<int>("CID").ToString() == cid);
+
+        bool bControllerExist = realTimeData.Tables[0].AsEnumerable().Any(row =>
+        {
+            string rowId = Convert.ToString(row["ID"]);
+            string rowCid = Convert.ToString(row["CID"]);
+            return rowId == iid && rowCid == cid;
+        });
+
+        if (status.IsConnChecking || status.IsConnTrying || !bControllerExist)
         {
             controllerInstance.GetComponent<Button>().onClick.AddListener(() =>
             {
@@ -2075,6 +2247,11 @@ public class ClientDatabase : MonoBehaviour
                 }
             }
         }
+    }
+
+    public static DataSet FetchUserData()
+    {
+        return OnSelectRequest($"SELECT FLD_ID, FLD_NAME, FLD_PW, FLD_EMAIL, FLD_SMS_PHONE, FLD_RECV_SMS, FLD_RECV_PUSH, FLD_AUTH, FLD_ACCESS, FLD_LANGUAGE, FLD_FCM_TOKEN, FLD_DESC FROM TBL_USER", "TBL_USER");
     }
 
     // TBL_CONFIG 테이블 DataSet 반환

@@ -1224,7 +1224,6 @@ public class ControllerSettingManager : MonoBehaviour
                 string pkeySt = protocolRow != null ? protocolRow["START"].ToString() : "";
                 string pkeyEd = protocolRow != null ? protocolRow["END"].ToString() : "";
 
-
                 string selectedCName = f_inputfield_ControllerName.text;
                 string selectedHg = f_dropdown_HighGroup.options[f_dropdown_HighGroup.value].text;
                 string selectedLg = f_dropdown_LowGroup.options[f_dropdown_LowGroup.value].text;

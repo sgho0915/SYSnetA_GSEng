@@ -73,7 +73,11 @@ public class SettingManager : MonoBehaviour
     public GameObject item_ChangePW; // 비밀번호 변경
     public GameObject settingPasswd; // 비밀번호 설정화면
     public GameObject lockButton;
-    private Button btnSaveSystemSet;    
+    private Button btnSaveSystemSet;
+
+    [Header("유저 관리")]
+    public Button btnUserSet;
+    public GameObject screenUserSet;
 
     [Header("업데이트")]
     public Button btnUpdateSet;
@@ -113,6 +117,8 @@ public class SettingManager : MonoBehaviour
     private GameObject objNormalNotSelected;
     private GameObject objSystemSelected;
     private GameObject objSystemNotSelected;
+    private GameObject objUserSelected;
+    private GameObject objUserNotSelected;
     private GameObject objUpdateSelected;
     private GameObject objUpdateNotSelected;
     private GameObject objManualSelected;
@@ -181,6 +187,7 @@ public class SettingManager : MonoBehaviour
         btnServerSet.onClick.RemoveAllListeners();
         btnNormalSet.onClick.RemoveAllListeners();
         btnSystemSet.onClick.RemoveAllListeners();
+        btnUserSet.onClick.RemoveAllListeners();
         btnUpdateSet.onClick.RemoveAllListeners();
         btnManualSet.onClick.RemoveAllListeners();
         btnInfoSet.onClick.RemoveAllListeners();
@@ -191,6 +198,8 @@ public class SettingManager : MonoBehaviour
         objNormalNotSelected = btnNormalSet.transform.Find("NotSelected").gameObject;
         objSystemSelected = btnSystemSet.transform.Find("Selected").gameObject;
         objSystemNotSelected = btnSystemSet.transform.Find("NotSelected").gameObject;
+        objUserSelected = btnUserSet.transform.Find("Selected").gameObject;
+        objUserNotSelected = btnUserSet.transform.Find("NotSelected").gameObject;
         objUpdateSelected = btnUpdateSet.transform.Find("Selected").gameObject;
         objUpdateNotSelected = btnUpdateSet.transform.Find("NotSelected").gameObject;
         objManualSelected = btnManualSet.transform.Find("Selected").gameObject;
@@ -204,6 +213,8 @@ public class SettingManager : MonoBehaviour
         uiList.Add(objNormalNotSelected);
         uiList.Add(objSystemSelected);
         uiList.Add(objSystemNotSelected);
+        uiList.Add(objUserSelected);
+        uiList.Add(objUserNotSelected);
         uiList.Add(objUpdateSelected);
         uiList.Add(objUpdateNotSelected);
         uiList.Add(objManualSelected);
@@ -213,6 +224,7 @@ public class SettingManager : MonoBehaviour
         uiList.Add(screenServerSet);
         uiList.Add(screenNormalSet);
         uiList.Add(screenSystemSet);
+        uiList.Add(screenUserSet);
         uiList.Add(screenUpdateSet);
         uiList.Add(screenManual);
         uiList.Add(screenInfoSet);
@@ -220,6 +232,7 @@ public class SettingManager : MonoBehaviour
         btnServerSet.onClick.AddListener(() => ChangeServerSetting());
         btnNormalSet.onClick.AddListener(() => ChangeNormalSetting());
         btnSystemSet.onClick.AddListener(() => ChangeSystemSetting());
+        btnUserSet.onClick.AddListener(() => ChangeUserSetting());
         btnUpdateSet.onClick.AddListener(() => ChangeUpdateSetting());
         btnManualSet.onClick.AddListener(() => ChangeManualSetting());
         btnInfoSet.onClick.AddListener(() => ChangeInfoSetting());        
@@ -473,6 +486,7 @@ public class SettingManager : MonoBehaviour
         objServerSelected.SetActive(true);
         objNormalNotSelected.SetActive(true);
         objSystemNotSelected.SetActive(true);
+        objUserNotSelected.SetActive(true);
         objUpdateNotSelected.SetActive(true);
         objManualNotSelected.SetActive(true);
         objInfoNotSelected.SetActive(true);
@@ -949,6 +963,7 @@ public class SettingManager : MonoBehaviour
         objNormalNotSelected.SetActive(true);
         objSystemSelected.SetActive(true);
         objServerNotSelected.SetActive(true);
+        objUserNotSelected.SetActive(true);
         objUpdateNotSelected.SetActive(true);
         objManualNotSelected.SetActive(true);
         objInfoNotSelected.SetActive(true);
@@ -995,6 +1010,25 @@ public class SettingManager : MonoBehaviour
     }
     #endregion
 
+    #region 유저관리
+    // 유저관리 설정 전환
+    public void ChangeUserSetting()
+    {
+        HideUI();
+        objNormalNotSelected.SetActive(true);
+        objSystemNotSelected.SetActive(true);
+        objUserSelected.SetActive(true);
+        objServerNotSelected.SetActive(true);
+        objUpdateNotSelected.SetActive(true);
+        objManualNotSelected.SetActive(true);
+        objInfoNotSelected.SetActive(true);
+        screenUserSet.SetActive(true);
+
+        UserSettingManager.Instance.LoadUserManagement();
+    }
+
+    #endregion
+
     #region 업데이트 관리
     // 업데이트 관리 전환
     public void ChangeUpdateSetting()
@@ -1003,6 +1037,7 @@ public class SettingManager : MonoBehaviour
         objNormalNotSelected.SetActive(true);
         objSystemNotSelected.SetActive(true);
         objServerNotSelected.SetActive(true);
+        objUserNotSelected.SetActive(true);
         objUpdateSelected.SetActive(true);
         objManualNotSelected.SetActive(true);
         objInfoNotSelected.SetActive(true);
@@ -1019,6 +1054,7 @@ public class SettingManager : MonoBehaviour
         objNormalNotSelected.SetActive(true);
         objSystemNotSelected.SetActive(true);
         objServerNotSelected.SetActive(true);
+        objUserNotSelected.SetActive(true);
         objUpdateNotSelected.SetActive(true);
         objManualSelected.SetActive(true);
         objInfoNotSelected.SetActive(true);
@@ -1094,6 +1130,7 @@ public class SettingManager : MonoBehaviour
         objNormalNotSelected.SetActive(true);
         objSystemNotSelected.SetActive(true);
         objServerNotSelected.SetActive(true);
+        objUserNotSelected.SetActive(true);
         objUpdateNotSelected.SetActive(true);
         objManualNotSelected.SetActive(true);
         objInfoSelected.SetActive(true);

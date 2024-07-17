@@ -35,6 +35,8 @@ public class DetailView : MonoBehaviour
     public TMP_FontAsset font_Pretendard_Bold;
 
     public GameObject setting_Numpad;
+    public GameObject toggle_NoUse;
+    public GameObject toggle_SetValStr;
     public GameObject setting_Dropdown;
     public GameObject setting_Toggle;
     public GameObject setting_Timepicker;
@@ -332,7 +334,7 @@ public class DetailView : MonoBehaviour
                     btnOperateRun.gameObject.SetActive(false);
                     dvWidgetState.SetActive(false);
                 }
-                else if (pkey == "07152101-011-00-170" || pkey == "UC0224150200401102" || pkey == "UC0815120104610507") // 운전, 제상 있음
+                else if (pkey == "07152101-011-00-170" || pkey == "UC0224150200401102" || pkey == "UC0815120104610507" || pkey == "UC0713020103611349") // 운전, 제상 있음
                 {
                     btnOperateDefrost.gameObject.SetActive(true);
                     btnOperateRun.gameObject.SetActive(true);
@@ -371,8 +373,6 @@ public class DetailView : MonoBehaviour
                         // 위젯 인스턴스가 이미 존재하는 경우
                         if (widgetObjDictionary.TryGetValue(widgetObjName, out widgetInstance))
                         {
-                            
-
                             // 위젯 인스턴스의 값을 업데이트
                             if (tag.Value.TryGetValue("setAddr", out var setAddr))
                             {
@@ -526,7 +526,8 @@ public class DetailView : MonoBehaviour
                             string[] arrMultiply = multiply.Split(',');
 
                             // 트렌드 요소 버튼 인스턴스 생성
-                            if (pkey == "UC0224150200401102") // 풀무원 예외처리
+                            // 풀무원 예외처리
+                            if (pkey == "UC0224150200401102") 
                             {
                                 if (addr == "222" || addr == "235")
                                     tempList += $"_{addr}";
@@ -544,7 +545,8 @@ public class DetailView : MonoBehaviour
 
                                 if (!graphElementDictionary.TryGetValue(graphElementObjName, out graphElementInstance))
                                 {
-                                    if (pkey == "UC0224150200401102") // 풀무원 예외처리
+                                    // 풀무원 예외처리
+                                    if (pkey == "UC0224150200401102") 
                                     {
                                         if (addr == "223" || addr == "236" || addr == "233" || addr == "234" ||
                                             addr == "242" || addr == "245" || addr == "248" || addr == "251" || addr == "254" ||
@@ -606,7 +608,8 @@ public class DetailView : MonoBehaviour
                         else
                         {
                             // 트렌드 요소 버튼 인스턴스 생성
-                            if (pkey == "UC0224150200401102") // 풀무원 예외처리
+                            // 풀무원 예외처리
+                            if (pkey == "UC0224150200401102") 
                             {
                                 if (addr == "222" || addr == "235")
                                     tempList += $"_{addr}";
@@ -624,7 +627,8 @@ public class DetailView : MonoBehaviour
 
                                 if (!graphElementDictionary.TryGetValue(graphElementObjName, out graphElementInstance))
                                 {
-                                    if (pkey == "UC0224150200401102") // 풀무원 예외처리
+                                    // 풀무원 예외처리
+                                    if (pkey == "UC0224150200401102") 
                                     {
                                         if (addr == "223" || addr == "236" || addr == "233" || addr == "234" ||
                                             addr == "242" || addr == "245" || addr == "248" || addr == "251" || addr == "254" ||
@@ -693,6 +697,7 @@ public class DetailView : MonoBehaviour
                 pulmuoneNameList.Add(elecList);
             }
 
+            // 풀무원 예외처리
             if (pkey == "UC0224150200401102")
             {
                 foreach (var addrList in pulmuoneNameList)
@@ -778,7 +783,6 @@ public class DetailView : MonoBehaviour
     {
         // XML에서 모든 속성을 가져오는 함수 호출
         var allAttributes = XMLParser.Instance.GetAllXMLAttributes(XMLParser.Instance.xmlContent);
-
 
         if (allAttributes.ContainsKey("groups"))
         {
@@ -1224,6 +1228,8 @@ public class DetailView : MonoBehaviour
                                                 minSetValue = int.Parse(minSetAddr) < 200 ? parsedPollingData[int.Parse(minSetAddr)] : parsedPollingData[int.Parse(minSetAddr) - 200];
                                                 maxSetValue = int.Parse(maxSetAddr) < 200 ? parsedPollingData[int.Parse(maxSetAddr)] : parsedPollingData[int.Parse(maxSetAddr) - 200];
                                             }
+
+                                            
 
                                             // 모드버스에서 읽어온 값                                        
                                             int rawValue = int.Parse(addr) < 200 ? parsedPollingData[int.Parse(addr)] : parsedPollingData[int.Parse(addr) - 200];
@@ -1677,11 +1683,6 @@ public class DetailView : MonoBehaviour
                 int rawValue = int.Parse(tagAttributes["addr"]) < 200 ? parsedPollingData[int.Parse(tagAttributes["addr"])] : parsedPollingData[int.Parse(tagAttributes["addr"]) - 200];
 
                 if (rawValue >= 32768) rawValue -= 65536;
-                //if (tagAttributes["size"] == "s2")
-                //{
-                //    // rawValue가 32768 이상인 경우, 음수로 변환
-                    
-                //}
 
                 string scaledValue = string.Empty;
                 if (finalMultiply == "1.0" || finalMultiply == "1")
@@ -1802,11 +1803,6 @@ public class DetailView : MonoBehaviour
                 int rawValue = int.Parse(tagAttributes["addr"]) < 200 ? parsedPollingData[int.Parse(tagAttributes["addr"])] : parsedPollingData[int.Parse(tagAttributes["addr"]) - 200];
 
                 if (rawValue >= 32768) rawValue -= 65536;
-                //if (tagAttributes["size"] == "s2")
-                //{
-                //    // rawValue가 32768 이상인 경우, 음수로 변환
-                    
-                //}
 
                 string scaledValue = string.Empty;
                 if (multiply == "1.0" || multiply == "1")
@@ -1825,7 +1821,7 @@ public class DetailView : MonoBehaviour
 
                 // 사용안함 값(nouse)이 존재하는 경우
                 if (tagAttributes.TryGetValue("nouse", out var nouse))
-                {
+                {                    
                     if (tagAttributes.TryGetValue("nouseStr", out var nouseStr))
                     {
                         if (scaledValue == (float.Parse(nouse) / float.Parse(tagAttributes["multiply"])).ToString())
@@ -1849,25 +1845,82 @@ public class DetailView : MonoBehaviour
                 else
                 {
                     // 사용안함 값에 대한 속성을 사용하지 않는 경우
+                    
                     setElementInstance.transform.Find("btn_Setting/obj_Value/txt_Value").GetComponent<TextMeshProUGUI>().text = $"{scaledValue}";
                     setElementInstance.transform.Find("btn_Setting/obj_Value/txt_Unit").GetComponent<TextMeshProUGUI>().text = unit;
                 }
+
+                if (tagAttributes.TryGetValue("setValueStr", out var setValueStr))
+                {
+                    setElementInstance.transform.Find("btn_Setting/obj_Value/txt_Value").GetComponent<TextMeshProUGUI>().text = $"{setValueStr.Split('|')[1]}";
+                    setElementInstance.transform.Find("btn_Setting/obj_Value/txt_Unit").GetComponent<TextMeshProUGUI>().text = string.Empty;
+                }
+
+
 
                 setElementInstance.transform.Find("btn_Setting").GetComponent<Button>().onClick.RemoveAllListeners();
                 setElementInstance.transform.Find("btn_Setting").GetComponent<Button>().onClick.AddListener(() =>
                 {
                     int minSetValue = 0;
                     int maxSetValue = 0;
-                    if (tagAttributes.TryGetValue("minSetAddr", out var minSetAddr) && tagAttributes.TryGetValue("maxSetAddr", out var maxSetAddr))
-                    {
+                    int rangeValue = 0;
 
-                        minSetValue = int.Parse(minSetAddr) < 200 ? parsedPollingData[int.Parse(minSetAddr)] : parsedPollingData[int.Parse(minSetAddr) - 200];
-                        maxSetValue = int.Parse(maxSetAddr) < 200 ? parsedPollingData[int.Parse(maxSetAddr)] : parsedPollingData[int.Parse(maxSetAddr) - 200];
+                    string strMin = string.Empty;
+                    string strMax = string.Empty;
+
+                    if(tagAttributes.TryGetValue("minAddr", out var minAddr))
+                    {
+                        strMin = minAddr.ToString();
+                        minSetValue = int.Parse(strMin.Split('|')[0]) < 200 ? parsedPollingData[int.Parse(strMin.Split('|')[0])] + 1 : parsedPollingData[int.Parse(strMin.Split('|')[0]) - 200] + 1;
+                        maxSetValue = int.Parse(tagAttributes["max"]);
+                    }
+                    if (tagAttributes.TryGetValue("maxAddr", out var maxAddr))
+                    {
+                        strMax = maxAddr.ToString();
+                        minSetValue = int.Parse(tagAttributes["min"]);
+                        maxSetValue = int.Parse(strMax.Split('|')[0]) < 200 ? parsedPollingData[int.Parse(strMax.Split('|')[0])] - 1: parsedPollingData[int.Parse(strMax.Split('|')[0]) - 200] - 1;
+                    }
+
+                    // name="표준 유니트쿨러 분리형 1스텝" key="UC0713020103611349" fw_code="07130201-036-11-349" rangeAddr 예외처리
+                    if (tagAttributes.TryGetValue("rangeAddr", out var rangeAddr))
+                    {
+                        rangeValue = int.Parse(rangeAddr) < 200 ? parsedPollingData[int.Parse(rangeAddr)] : parsedPollingData[int.Parse(rangeAddr) - 200];
+
+                        if(rangeValue == 0)
+                        {
+                            minSetValue = int.Parse(tagAttributes["min"]);
+                            maxSetValue = int.Parse(tagAttributes["max"]);
+                        }
+                        else if(rangeValue == 1)
+                        {
+                            minSetValue = int.Parse(strMin.Split('|')[0]) < 200 ? parsedPollingData[int.Parse(strMin.Split('|')[0])] : parsedPollingData[int.Parse(strMin.Split('|')[0]) - 200];
+                            maxSetValue = int.Parse(strMax.Split('|')[0]) < 200 ? parsedPollingData[int.Parse(strMax.Split('|')[0])] : parsedPollingData[int.Parse(strMax.Split('|')[0]) - 200];
+                        }
+                    }
+                    else
+                    {
+                        if (tagAttributes.TryGetValue("minSetAddr", out var minSetAddr) && tagAttributes.TryGetValue("maxSetAddr", out var maxSetAddr))
+                        {
+                            minSetValue = int.Parse(minSetAddr) < 200 ? parsedPollingData[int.Parse(minSetAddr)] : parsedPollingData[int.Parse(minSetAddr) - 200];
+                            maxSetValue = int.Parse(maxSetAddr) < 200 ? parsedPollingData[int.Parse(maxSetAddr)] : parsedPollingData[int.Parse(maxSetAddr) - 200];
+                        }
                     }
 
                     if (isGroupCanSetUpWhileRun)
                     {
                         if (tagAttributes.ContainsKey("minSetAddr") && tagAttributes.ContainsKey("maxSetAddr"))
+                        {
+                            SetNumpadDatas(tagAttributes["addr"], iid, cid, rawValue, float.Parse(scaledValue), unit, minSetValue.ToString(), maxSetValue.ToString(), multiply, tagAttributes["size"], tagAttributes);
+                        }
+                        else if (tagAttributes.ContainsKey("rangeAddr"))
+                        {
+                            SetNumpadDatas(tagAttributes["addr"], iid, cid, rawValue, float.Parse(scaledValue), unit, minSetValue.ToString(), maxSetValue.ToString(), multiply, tagAttributes["size"], tagAttributes);
+                        }
+                        else if (tagAttributes.ContainsKey("minAddr"))
+                        {
+                            SetNumpadDatas(tagAttributes["addr"], iid, cid, rawValue, float.Parse(scaledValue), unit, minSetValue.ToString(), maxSetValue.ToString(), multiply, tagAttributes["size"], tagAttributes);
+                        }
+                        else if (tagAttributes.ContainsKey("maxAddr"))
                         {
                             SetNumpadDatas(tagAttributes["addr"], iid, cid, rawValue, float.Parse(scaledValue), unit, minSetValue.ToString(), maxSetValue.ToString(), multiply, tagAttributes["size"], tagAttributes);
                         }
@@ -1891,6 +1944,18 @@ public class DetailView : MonoBehaviour
                             {
                                 SetNumpadDatas(tagAttributes["addr"], iid, cid, rawValue, float.Parse(scaledValue), unit, minSetValue.ToString(), maxSetValue.ToString(), multiply, tagAttributes["size"], tagAttributes);
                             }
+                            else if (tagAttributes.ContainsKey("rangeAddr"))
+                            {
+                                SetNumpadDatas(tagAttributes["addr"], iid, cid, rawValue, float.Parse(scaledValue), unit, minSetValue.ToString(), maxSetValue.ToString(), multiply, tagAttributes["size"], tagAttributes);
+                            }
+                            else if (tagAttributes.ContainsKey("minAddr"))
+                            {
+                                SetNumpadDatas(tagAttributes["addr"], iid, cid, rawValue, float.Parse(scaledValue), unit, minSetValue.ToString(), maxSetValue.ToString(), multiply, tagAttributes["size"], tagAttributes);
+                            }
+                            else if (tagAttributes.ContainsKey("maxAddr"))
+                            {
+                                SetNumpadDatas(tagAttributes["addr"], iid, cid, rawValue, float.Parse(scaledValue), unit, minSetValue.ToString(), maxSetValue.ToString(), multiply, tagAttributes["size"], tagAttributes);
+                            }
                             else
                             {
                                 SetNumpadDatas(tagAttributes["addr"], iid, cid, rawValue, float.Parse(scaledValue), unit, tagAttributes["min"], tagAttributes["max"], multiply, tagAttributes["size"], tagAttributes);
@@ -1899,8 +1964,6 @@ public class DetailView : MonoBehaviour
                     }
                 });
             }
-
-
         }
 
         // dropdown 스타일 인스턴스 업데이트 로직
@@ -2582,6 +2645,8 @@ public class DetailView : MonoBehaviour
         // 사용안함 값(nouse)이 존재하는 경우
         if (tagAttributes.TryGetValue("nouse", out var nouse))
         {
+            //toggle_NoUse.SetActive(true);
+            SettingNumPad.toggleNoUse.gameObject.SetActive(true);
             if (tagAttributes.TryGetValue("nouseStr", out var nouseStr))
             {
                 if (rawValue == int.Parse(nouse))
@@ -2600,6 +2665,7 @@ public class DetailView : MonoBehaviour
                         if (isOn)
                         {
                             // 토글이 켜진 경우, "사용안함" 또는 특정 문자열로 설정
+                            SettingNumPad.toggleSetValStr.isOn = false;
                             SettingNumPad.txtSetValue.text = nouseStr; // "사용안함" 또는 다른 특정 문자열
                             SettingNumPad.txtSetUnit.text = string.Empty;
                         }
@@ -2627,6 +2693,7 @@ public class DetailView : MonoBehaviour
                     {
                         if (isOn)
                         {
+                            SettingNumPad.toggleSetValStr.isOn = false;
                             // 토글이 켜진 경우, "사용안함" 또는 특정 문자열로 설정
                             SettingNumPad.txtSetValue.text = nouseStr; // "사용안함" 또는 다른 특정 문자열
                             SettingNumPad.txtSetUnit.text = string.Empty;
@@ -2660,6 +2727,7 @@ public class DetailView : MonoBehaviour
                         if (isOn)
                         {
                             // 토글이 켜진 경우, "사용안함" 또는 특정 문자열로 설정
+                            SettingNumPad.toggleSetValStr.isOn = false;
                             SettingNumPad.txtSetValue.text = "사용안함"; // "사용안함" 또는 다른 특정 문자열
                             SettingNumPad.txtSetUnit.text = string.Empty;
                         }
@@ -2688,6 +2756,7 @@ public class DetailView : MonoBehaviour
                         if (isOn)
                         {
                             // 토글이 켜진 경우, "사용안함" 또는 특정 문자열로 설정
+                            SettingNumPad.toggleSetValStr.isOn = false;
                             SettingNumPad.txtSetValue.text = "사용안함"; // "사용안함" 또는 다른 특정 문자열
                             SettingNumPad.txtSetUnit.text = string.Empty;
                         }
@@ -2746,9 +2815,51 @@ public class DetailView : MonoBehaviour
         else
         {
             // 사용안함 속성이 tag 태그에 존재하지 않을 경우
+            SettingNumPad.toggleNoUse.gameObject.SetActive(false);
             SettingNumPad.toggleNoUse.interactable = false;
             SettingNumPad.toggleNoUse.isOn = false;
             SettingNumPad.txtNoUseStr.text = "사용안함";
+        }
+
+        // 특정 값에 대한 문자열 대입 속성(setValueStr)이 존재하는 경우
+        if (tagAttributes.TryGetValue("setValueStr", out var setValueStr))
+        {
+            SettingNumPad.toggleSetValStr.gameObject.SetActive(true);
+            SettingNumPad.txtSetValStr.text = tagAttributes["setValueStr"].Split('|')[1];
+
+            SettingNumPad.toggleSetValStr.onValueChanged.RemoveAllListeners();
+            SettingNumPad.toggleSetValStr.onValueChanged.AddListener((isOn) =>
+            {
+                if (isOn)
+                {
+                    // 토글이 켜진 경우, "사용안함" 또는 특정 문자열로 설정
+                    SettingNumPad.txtSetValue.text = $"{tagAttributes["setValueStr"].Split('|')[1]}"; ; // "사용안함" 또는 다른 특정 문자열
+                    SettingNumPad.txtSetUnit.text = string.Empty;
+                    SettingNumPad.toggleNoUse.isOn=false;
+                }
+                else
+                {
+                    // 토글이 꺼진 경우, 원래의 값(스케일 조정된 값)으로 설정
+                    float originalValue = rawValue / float.Parse(multiply);
+                    SettingNumPad.txtSetValue.text = originalValue.ToString();
+                    SettingNumPad.txtSetUnit.text = $"{unit}";
+                }
+            });
+
+            if (rawValue == int.Parse(tagAttributes["setValueStr"].Split('|')[0]))
+            {
+                // 사용안함 값에 대한 별도 문자열이 있으면서 현재 값과 동일한 경우
+                SettingNumPad.toggleSetValStr.interactable = true;
+                SettingNumPad.toggleSetValStr.isOn = true;
+                SettingNumPad.txtCurrentValue.text = $"{tagAttributes["setValueStr"].Split('|')[1]}";
+                SettingNumPad.txtSetValStr.text = $"{tagAttributes["setValueStr"].Split('|')[1]}";
+                SettingNumPad.txtSetValue.text = $"{tagAttributes["setValueStr"].Split('|')[1]}";
+                SettingNumPad.txtSetUnit.text = string.Empty;
+            }
+        }
+        else
+        {
+            SettingNumPad.toggleSetValStr.gameObject.SetActive(false);
         }
 
         SettingNumPad.btnOK.onClick.RemoveAllListeners(); // 기존 리스너 제거
@@ -2795,7 +2906,29 @@ public class DetailView : MonoBehaviour
             }
             else
             {
-                if (float.Parse(SettingNumPad.txtSetValue.text) * float.Parse(multiply) < (float.Parse(scaledMinValue) * float.Parse(multiply)) || float.Parse(SettingNumPad.txtSetValue.text) * float.Parse(multiply) > float.Parse(scaledMaxValue) * float.Parse(multiply))
+                string jsonString = string.Empty;
+                string hexValue = string.Empty; // 16진수 값을 저장할 변수
+
+                if (SettingNumPad.toggleSetValStr.isOn)
+                {                    
+                    int setRawValue = (int)(float.Parse(tagAttributes["setValueStr"].Split('|')[0]) * float.Parse(multiply));
+                    hexValue = "0x" + ((ushort)setRawValue).ToString("X4");
+                    jsonString = $"{{\"Address\":{addr},\"Value\":\"{hexValue}\",\"Multiply\":\"{multiply}\",\"Size\":\"{size}\",\"Comment\":\"{tagAttributes["name"]}, {SettingNumPad.txtCurrentValue.text}에서 {tagAttributes["setValueStr"].Split('|')[1]}({tagAttributes["setValueStr"].Split('|')[0]})(으)로 변경 : {addr}\"}}";
+
+                    if (ControlManager.Instance.SendControlCommand(iid, cid, jsonString))
+                    {
+                        SettingNumPad.InitNumpad();
+                        setting_Numpad.SetActive(false);
+                    }
+                    else
+                    {
+                        ScreenManager.Instance.CurrentPopUpState = ScreenManager.PopUpState.ErrorWarning;
+                        ScreenManager.Instance.txt_PopUpMsg.text = "설정에 실패했습니다.\n통신상태를 확인해주세요.";
+                        ScreenManager.Instance.btnPopUpConfirm.onClick.RemoveAllListeners();
+                        ScreenManager.Instance.btnPopUpConfirm.onClick.AddListener(() => ScreenManager.Instance.ClosePopUpMessage());
+                    }
+                }
+                else if (float.Parse(SettingNumPad.txtSetValue.text) * float.Parse(multiply) < (float.Parse(scaledMinValue) * float.Parse(multiply)) || float.Parse(SettingNumPad.txtSetValue.text) * float.Parse(multiply) > float.Parse(scaledMaxValue) * float.Parse(multiply))
                 {
                     //Debug.Log($"SettingNumPad.txtSetValue.text:{float.Parse(SettingNumPad.txtSetValue.text) * float.Parse(multiply)}, min:{float.Parse(scaledMinValue) * float.Parse(multiply)}, max:{float.Parse(scaledMaxValue) * float.Parse(multiply)}, multiply:{multiply}");
                     screenManager.CurrentPopUpState = ScreenManager.PopUpState.ErrorWarning;
@@ -2805,33 +2938,24 @@ public class DetailView : MonoBehaviour
                 }
                 else
                 {
-                    string jsonString = string.Empty;
-                    string hexValue = string.Empty; // 16진수 값을 저장할 변수
-
                     if (SettingNumPad.toggleNoUse.isOn)
                     {
                         int setRawValue = (int)(float.Parse(nouse) * float.Parse(multiply));
-                        //hexValue = "0x" + setRawValue.ToString("X4");
                         hexValue = "0x" + ((ushort)setRawValue).ToString("X4");
-                        //Debug.Log($"{setRawValue} - {hexValue}");
                         jsonString = $"{{\"Address\":{addr},\"Value\":\"{hexValue}\",\"Multiply\":\"{multiply}\",\"Size\":\"{size}\",\"Comment\":\"{tagAttributes["name"]}, {SettingNumPad.txtCurrentValue.text}에서 사용안함({nouse}{unit})(으)로 변경 : {addr}\"}}";
                     }
 
                     if (SettingNumPad.toggleNoUse.isOn && tagAttributes.TryGetValue("nouseStr", out var nouseStr))
                     {
                         int setRawValue = (int)(float.Parse(nouse) * float.Parse(multiply));
-                        //hexValue = "0x" + setRawValue.ToString("X4");
                         hexValue = "0x" + ((ushort)setRawValue).ToString("X4");
-                        //Debug.Log($"{setRawValue} - {hexValue}");
                         jsonString = $"{{\"Address\":{addr},\"Value\":\"{hexValue}\",\"Multiply\":\"{multiply}\",\"Size\":\"{size}\",\"Comment\":\"{tagAttributes["name"]}, {SettingNumPad.txtCurrentValue.text}에서 {nouseStr}({nouse}{unit})(으)로 변경 : {addr}\"}}";
                     }
 
                     if (!SettingNumPad.toggleNoUse.isOn)
                     {
                         int setRawValue = (int)(float.Parse(SettingNumPad.txtSetValue.text) * float.Parse(multiply));
-                        //hexValue = "0x" + setRawValue.ToString("X4");
                         hexValue = "0x" + ((ushort)setRawValue).ToString("X4");
-                        //Debug.Log($"{setRawValue} - {hexValue}");
                         jsonString = $"{{\"Address\":{addr},\"Value\":\"{hexValue}\",\"Multiply\":\"{multiply}\",\"Size\":\"{size}\",\"Comment\":\"{tagAttributes["name"]}, {SettingNumPad.txtCurrentValue.text}에서 {SettingNumPad.txtSetValue.text}{unit}(으)로 변경 : {addr}\"}}";
                     }
 
