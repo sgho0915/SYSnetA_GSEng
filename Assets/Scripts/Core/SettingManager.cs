@@ -573,6 +573,7 @@ public class SettingManager : MonoBehaviour
         objSystemNotSelected.SetActive(true);
         objServerNotSelected.SetActive(true);
         objUpdateNotSelected.SetActive(true);
+        objUserNotSelected.SetActive(true);
         objManualNotSelected.SetActive(true);
         objInfoNotSelected.SetActive(true);
         screenNormalSet.SetActive(true);

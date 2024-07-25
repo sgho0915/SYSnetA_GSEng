@@ -207,6 +207,21 @@ public class UserSettingManager : MonoBehaviour
         if (dropdown_Auth.options.Count > 0)
             dropdown_Auth.value = 0;
 
+
+        toggle_sms.onValueChanged.AddListener((value) =>
+        {
+            if (value)
+            {
+                ScreenManager.Instance.CurrentPopUpState = ScreenManager.PopUpState.Notification;
+                ScreenManager.Instance.txt_PopUpMsg.text = "SMS 발송 기능은 아이코드\n(https://www.icodekorea.com/)에서 가입,\n요금 충전 후 사용 가능합니다.";
+                ScreenManager.Instance.btnPopUpConfirm.onClick.RemoveAllListeners();
+                ScreenManager.Instance.btnPopUpConfirm.onClick.AddListener(() =>
+                {
+                    ScreenManager.Instance.ClosePopUpMessage();
+                });
+            }
+        });
+
         btnSave.onClick.RemoveAllListeners();
         btnSave.onClick.AddListener(() =>
         {
@@ -414,8 +429,44 @@ public class UserSettingManager : MonoBehaviour
         inputfield_Name.text = userName;
         inputfield_Email.text = userEmail;
         inputfield_Phone.text = userPhone;
-        toggle_sms.isOn = userRecvSMS == "Y"? true : false;
-        toggle_push.isOn = userRecvPush == "Y" ? true : false;
+        toggle_sms.isOn = userRecvSMS == "1" ? true : false;
+        toggle_push.isOn = userRecvPush == "1" ? true : false;
+
+        if (!toggle_sms.isOn)
+        {
+            toggle_sms.onValueChanged.AddListener((value) =>
+            {
+                if (value)
+                {
+                    ScreenManager.Instance.CurrentPopUpState = ScreenManager.PopUpState.Notification;
+                    ScreenManager.Instance.txt_PopUpMsg.text = "SMS 발송 기능은 아이코드\n(https://www.icodekorea.com/)에서 가입,\n요금 충전 후 사용 가능합니다.";
+                    ScreenManager.Instance.btnPopUpConfirm.onClick.RemoveAllListeners();
+                    ScreenManager.Instance.btnPopUpConfirm.onClick.AddListener(() =>
+                    {
+                        ScreenManager.Instance.ClosePopUpMessage();
+                    });
+                }
+            });
+        }
+        else
+        { 
+            ScreenManager.Instance.ClosePopUpMessage();
+            toggle_sms.onValueChanged.AddListener((value) =>
+            {
+                if (value)
+                {
+                    ScreenManager.Instance.CurrentPopUpState = ScreenManager.PopUpState.Notification;
+                    ScreenManager.Instance.txt_PopUpMsg.text = "SMS 발송 기능은 아이코드\n(https://www.icodekorea.com/)에서 가입,\n요금 충전 후 사용 가능합니다.";
+                    ScreenManager.Instance.btnPopUpConfirm.onClick.RemoveAllListeners();
+                    ScreenManager.Instance.btnPopUpConfirm.onClick.AddListener(() =>
+                    {
+                        ScreenManager.Instance.ClosePopUpMessage();
+                    });
+                }
+            });
+        }
+
+        
 
         btnSave.onClick.RemoveAllListeners();
         btnSave.onClick.AddListener(() =>

@@ -1250,22 +1250,25 @@ public class ControllerSettingManager : MonoBehaviour
                                                                                // GROUP_ORDER 값 설정 로직
                 string groupOrder = ClientDatabase.GetMaxGroupOrder(hgid, lgid).ToString(); // GetMaxGroupOrder 메서드는 구현해야 합니다.
 
-                // ID와 selectedEquipNum에 대해 중복 체크
-                string checkDuplicateQuery = $"SELECT COUNT(*) FROM TBL_CONTROLLER WHERE ID = '{id}' AND CID = '{selectedEquipNum}'";
-                int duplicateCount = ClientDatabase.ExecuteScalarQuery(checkDuplicateQuery);
-
-                if (duplicateCount > 0)
+                if(cid != selectedEquipNum)
                 {
-                    ScreenManager.Instance.CurrentPopUpState = ScreenManager.PopUpState.ErrorWarning;
-                    ScreenManager.Instance.txt_PopUpMsg.text = "해당 인터페이스에 이미 등록된\n장비번호가 존재합니다.";
-                    ScreenManager.Instance.btnPopUpConfirm.onClick.RemoveAllListeners();
-                    ScreenManager.Instance.btnPopUpConfirm.onClick.AddListener(() =>
-                    {
-                        ScreenManager.Instance.ClosePopUpMessage();
+                    // ID와 selectedEquipNum에 대해 중복 체크
+                    string checkDuplicateQuery = $"SELECT COUNT(*) FROM TBL_CONTROLLER WHERE ID = '{id}' AND CID = '{selectedEquipNum}'";
+                    int duplicateCount = ClientDatabase.ExecuteScalarQuery(checkDuplicateQuery);
 
-                    });
-                    return;
-                }
+                    if (duplicateCount > 0)
+                    {
+                        ScreenManager.Instance.CurrentPopUpState = ScreenManager.PopUpState.ErrorWarning;
+                        ScreenManager.Instance.txt_PopUpMsg.text = "해당 인터페이스에 이미 등록된\n장비번호가 존재합니다.";
+                        ScreenManager.Instance.btnPopUpConfirm.onClick.RemoveAllListeners();
+                        ScreenManager.Instance.btnPopUpConfirm.onClick.AddListener(() =>
+                        {
+                            ScreenManager.Instance.ClosePopUpMessage();
+
+                        });
+                        return;
+                    }
+                }                
 
                 string tblControllerQuery = $"UPDATE TBL_CONTROLLER SET ID = '{id}', CID = '{selectedEquipNum}', CNAME = '{selectedCName}', PKEY = '{pkey}', PKEY_ST = '{pkeySt}', PKEY_ED = '{pkeyEd}', SMS = '{smsState}', SHARE = '{shareState}', ITYPE = '{itype}', IID = '{iid}', HGID = '{hgid}', LGID = '{lgid}', GROUP_ORDER = '{groupOrder}' WHERE ID = '{id}' AND CID = '{cid}'";
 
@@ -1517,25 +1520,28 @@ public class ControllerSettingManager : MonoBehaviour
                 }
 
                 // CID 값 설정 로직
-                                                                                            //string maxCID = (ClientDatabase.GetMaxCID(id) + 1).ToString(); // GetMaxCID 메서드는 구현해야 합니다.
-                                                                                            // GROUP_ORDER 값 설정 로직
+                //string maxCID = (ClientDatabase.GetMaxCID(id) + 1).ToString(); // GetMaxCID 메서드는 구현해야 합니다.
+                // GROUP_ORDER 값 설정 로직
                 string groupOrder = ClientDatabase.GetMaxGroupOrder(hgid, lgid).ToString(); // GetMaxGroupOrder 메서드는 구현해야 합니다.
 
-                // ID와 selectedEquipNum에 대해 중복 체크
-                string checkDuplicateQuery = $"SELECT COUNT(*) FROM TBL_CONTROLLER WHERE ID = '{id}' AND CID = '{selectedEquipNum}'";
-                int duplicateCount = ClientDatabase.ExecuteScalarQuery(checkDuplicateQuery);
-
-                if (duplicateCount > 0)
+                if (cid != selectedEquipNum)
                 {
-                    ScreenManager.Instance.CurrentPopUpState = ScreenManager.PopUpState.ErrorWarning;
-                    ScreenManager.Instance.txt_PopUpMsg.text = "해당 인터페이스에 이미 등록된\n장비번호가 존재합니다.";
-                    ScreenManager.Instance.btnPopUpConfirm.onClick.RemoveAllListeners();
-                    ScreenManager.Instance.btnPopUpConfirm.onClick.AddListener(() =>
-                    {
-                        ScreenManager.Instance.ClosePopUpMessage();
+                    // ID와 selectedEquipNum에 대해 중복 체크
+                    string checkDuplicateQuery = $"SELECT COUNT(*) FROM TBL_CONTROLLER WHERE ID = '{id}' AND CID = '{selectedEquipNum}'";
+                    int duplicateCount = ClientDatabase.ExecuteScalarQuery(checkDuplicateQuery);
 
-                    });
-                    return;
+                    if (duplicateCount > 0)
+                    {
+                        ScreenManager.Instance.CurrentPopUpState = ScreenManager.PopUpState.ErrorWarning;
+                        ScreenManager.Instance.txt_PopUpMsg.text = "해당 인터페이스에 이미 등록된\n장비번호가 존재합니다.";
+                        ScreenManager.Instance.btnPopUpConfirm.onClick.RemoveAllListeners();
+                        ScreenManager.Instance.btnPopUpConfirm.onClick.AddListener(() =>
+                        {
+                            ScreenManager.Instance.ClosePopUpMessage();
+
+                        });
+                        return;
+                    }
                 }
 
                 string tblControllerQuery = $"UPDATE TBL_CONTROLLER SET ID = '{id}', CID = '{selectedEquipNum}', CNAME = '{selectedCName}', PKEY = '{pkey}', PKEY_ST = '{pkeySt}', PKEY_ED = '{pkeyEd}', SMS = '{smsState}', SHARE = '{shareState}', ITYPE = '{itype}', IID = '{iid}', HGID = '{hgid}', LGID = '{lgid}', GROUP_ORDER = '{groupOrder}' WHERE ID = '{id}' AND CID = '{cid}'";
@@ -1569,8 +1575,9 @@ public class ControllerSettingManager : MonoBehaviour
 
                     });
                 }
+
             });
-        }        
+        }
     }
 
     // 설정 변경 후 새로고침

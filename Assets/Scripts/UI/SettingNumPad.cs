@@ -111,7 +111,7 @@ public class SettingNumPad : MonoBehaviour
 
     public void Push_Del()
     {
-        if (!toggleNoUse.isOn)
+        if (!toggleNoUse.isOn && !toggleSetValStr.isOn)
         {
             if (!string.IsNullOrEmpty(txtSetValue.text))
             {
@@ -131,7 +131,7 @@ public class SettingNumPad : MonoBehaviour
 
     public void Push_Clear()
     {
-        if (!toggleNoUse.isOn)
+        if (!toggleNoUse.isOn && !toggleSetValStr.isOn)
         {
             if (isNumpadInit || txtSetValue.text == "0")
             {
@@ -148,7 +148,7 @@ public class SettingNumPad : MonoBehaviour
 
     public void Push_Dot()
     {
-        if (!toggleNoUse.isOn)
+        if (!toggleNoUse.isOn && !toggleSetValStr.isOn)
         {
             if (txtSetValue.text.Contains("."))
             {
@@ -165,7 +165,7 @@ public class SettingNumPad : MonoBehaviour
 
     public void Push_Sub()
     {
-        if (!toggleNoUse.isOn)
+        if (!toggleNoUse.isOn && !toggleSetValStr.isOn)
         {
             if (txtSetValue.text == "0")
             {
@@ -193,230 +193,211 @@ public class SettingNumPad : MonoBehaviour
 
     public void Push_0()
     {
-        if (toggleNoUse.isOn)
+        if (toggleNoUse.isOn || toggleSetValStr.isOn)
         {
             toggleNoUse.isOn = false;
+            toggleSetValStr.isOn = false;
+        }
+
+        if (isNumpadInit || txtSetValue.text == "0")
+        {
+            txtSetValue.text = "0";
         }
         else
         {
-            if (isNumpadInit || txtSetValue.text == "0")
-            {
-                txtSetValue.text = "0";
-            }
-            else
-            {                
-                if(!(txtSetValue.text.Length >= 8))
-                    txtSetValue.text += "0";
-            }
-            isNumpadInit = false;
+            if (!(txtSetValue.text.Length >= 8))
+                txtSetValue.text += "0";
         }
+        isNumpadInit = false;
         LayoutRebuilder.ForceRebuildLayoutImmediate(setValContainer.GetComponent<RectTransform>());
     }
 
     public void Push_1()
     {
-        if (toggleNoUse.isOn)
+        if (toggleNoUse.isOn || toggleSetValStr.isOn)
         {
             toggleNoUse.isOn = false;
+            toggleSetValStr.isOn = false;
+        }
+
+        if (isNumpadInit || txtSetValue.text == "0")
+        {
+            txtSetValue.text = "1";
         }
         else
-        {            
-            if (isNumpadInit || txtSetValue.text == "0")
-            {
-                txtSetValue.text = string.Empty;
+        {
+            if (!(txtSetValue.text.Length >= 8))
                 txtSetValue.text += "1";
-            }
-            else
-            {
-                if (!(txtSetValue.text.Length >= 8))
-                    txtSetValue.text += "1";
-            }
-            isNumpadInit = false;
         }
+        isNumpadInit = false;
         LayoutRebuilder.ForceRebuildLayoutImmediate(setValContainer.GetComponent<RectTransform>());
     }
 
     public void Push_2()
     {
-        if (toggleNoUse.isOn)
+        if (toggleNoUse.isOn || toggleSetValStr.isOn)
         {
             toggleNoUse.isOn = false;
+            toggleSetValStr.isOn = false;
+        }
+
+        if (isNumpadInit || txtSetValue.text == "0")
+        {
+            txtSetValue.text = "2";
         }
         else
         {
-            if (isNumpadInit || txtSetValue.text == "0")
-            {
-                txtSetValue.text = string.Empty;
+            if (!(txtSetValue.text.Length >= 8))
                 txtSetValue.text += "2";
-            }
-            else
-            {
-                if (!(txtSetValue.text.Length >= 8))
-                    txtSetValue.text += "2";
-            }
-            isNumpadInit = false;
         }
+        isNumpadInit = false;
         LayoutRebuilder.ForceRebuildLayoutImmediate(setValContainer.GetComponent<RectTransform>());
     }
 
     public void Push_3()
     {
-        if (toggleNoUse.isOn)
+        if (toggleNoUse.isOn || toggleSetValStr.isOn)
         {
             toggleNoUse.isOn = false;
+            toggleSetValStr.isOn = false;
+        }
+
+        if (isNumpadInit || txtSetValue.text == "0")
+        {
+            txtSetValue.text = "3";
         }
         else
         {
-            if (isNumpadInit || txtSetValue.text == "0")
-            {
-                txtSetValue.text = string.Empty;
+            if (!(txtSetValue.text.Length >= 8))
                 txtSetValue.text += "3";
-            }
-            else
-            {
-                if (!(txtSetValue.text.Length >= 8))
-                    txtSetValue.text += "3";
-            }
-            isNumpadInit = false;
         }
+        isNumpadInit = false;
         LayoutRebuilder.ForceRebuildLayoutImmediate(setValContainer.GetComponent<RectTransform>());
     }
 
     public void Push_4()
     {
-        if (toggleNoUse.isOn)
+        if (toggleNoUse.isOn || toggleSetValStr.isOn)
         {
             toggleNoUse.isOn = false;
+            toggleSetValStr.isOn = false;
+        }
+
+        if (isNumpadInit || txtSetValue.text == "0")
+        {
+            txtSetValue.text = "4";
         }
         else
         {
-            if (isNumpadInit || txtSetValue.text == "0")
-            {
-                txtSetValue.text = string.Empty;
+            if (!(txtSetValue.text.Length >= 8))
                 txtSetValue.text += "4";
-            }
-            else
-            {
-                if (!(txtSetValue.text.Length >= 8))
-                    txtSetValue.text += "4";
-            }
-            isNumpadInit = false;
         }
+        isNumpadInit = false;
         LayoutRebuilder.ForceRebuildLayoutImmediate(setValContainer.GetComponent<RectTransform>());
     }
 
     public void Push_5()
     {
-        if (toggleNoUse.isOn)
+        if (toggleNoUse.isOn || toggleSetValStr.isOn)
         {
             toggleNoUse.isOn = false;
+            toggleSetValStr.isOn = false;
+        }
+
+        if (isNumpadInit || txtSetValue.text == "0")
+        {
+            txtSetValue.text = "5";
         }
         else
         {
-            if (isNumpadInit || txtSetValue.text == "0")
-            {
-                txtSetValue.text = string.Empty;
+            if (!(txtSetValue.text.Length >= 8))
                 txtSetValue.text += "5";
-            }
-            else
-            {
-                if (!(txtSetValue.text.Length >= 8))
-                    txtSetValue.text += "5";
-            }
-            isNumpadInit = false;
         }
+        isNumpadInit = false;
         LayoutRebuilder.ForceRebuildLayoutImmediate(setValContainer.GetComponent<RectTransform>());
     }
 
     public void Push_6()
     {
-        if (toggleNoUse.isOn)
+        if (toggleNoUse.isOn || toggleSetValStr.isOn)
         {
             toggleNoUse.isOn = false;
+            toggleSetValStr.isOn = false;
+        }
+
+        if (isNumpadInit || txtSetValue.text == "0")
+        {
+            txtSetValue.text = "6";
         }
         else
         {
-            if (isNumpadInit || txtSetValue.text == "0")
-            {
-                txtSetValue.text = string.Empty;
+            if (!(txtSetValue.text.Length >= 8))
                 txtSetValue.text += "6";
-            }
-            else
-            {
-                if (!(txtSetValue.text.Length >= 8))
-                    txtSetValue.text += "6";
-            }
-            isNumpadInit = false;
         }
+        isNumpadInit = false;
         LayoutRebuilder.ForceRebuildLayoutImmediate(setValContainer.GetComponent<RectTransform>());
     }
 
     public void Push_7()
     {
-        if (toggleNoUse.isOn)
+        if (toggleNoUse.isOn || toggleSetValStr.isOn)
         {
             toggleNoUse.isOn = false;
+            toggleSetValStr.isOn = false;
+        }
+
+        if (isNumpadInit || txtSetValue.text == "0")
+        {
+            txtSetValue.text = "7";
         }
         else
         {
-            if (isNumpadInit || txtSetValue.text == "0")
-            {
-                txtSetValue.text = string.Empty;
+            if (!(txtSetValue.text.Length >= 8))
                 txtSetValue.text += "7";
-            }
-            else
-            {
-                if (!(txtSetValue.text.Length >= 8))
-                    txtSetValue.text += "7";
-            }
-            isNumpadInit = false;
         }
+        isNumpadInit = false;
         LayoutRebuilder.ForceRebuildLayoutImmediate(setValContainer.GetComponent<RectTransform>());
     }
 
     public void Push_8()
     {
-        if (toggleNoUse.isOn)
+        if (toggleNoUse.isOn || toggleSetValStr.isOn)
         {
             toggleNoUse.isOn = false;
+            toggleSetValStr.isOn = false;
+        }
+
+        if (isNumpadInit || txtSetValue.text == "0")
+        {
+            txtSetValue.text = "8";
         }
         else
         {
-            if (isNumpadInit || txtSetValue.text == "0")
-            {
-                txtSetValue.text = string.Empty;
+            if (!(txtSetValue.text.Length >= 8))
                 txtSetValue.text += "8";
-            }
-            else
-            {
-                if (!(txtSetValue.text.Length >= 8))
-                    txtSetValue.text += "8";
-            }
-            isNumpadInit = false;
         }
+        isNumpadInit = false;
         LayoutRebuilder.ForceRebuildLayoutImmediate(setValContainer.GetComponent<RectTransform>());
     }
 
     public void Push_9()
     {
-        if (toggleNoUse.isOn)
+        if (toggleNoUse.isOn || toggleSetValStr.isOn)
         {
             toggleNoUse.isOn = false;
+            toggleSetValStr.isOn = false;
+        }
+
+        if (isNumpadInit || txtSetValue.text == "0")
+        {
+            txtSetValue.text = "9";
         }
         else
         {
-            if (isNumpadInit || txtSetValue.text == "0")
-            {
-                txtSetValue.text = string.Empty;
+            if (!(txtSetValue.text.Length >= 8))
                 txtSetValue.text += "9";
-            }
-            else
-            {
-                if (!(txtSetValue.text.Length >= 8))
-                    txtSetValue.text += "9";
-            }
-            isNumpadInit = false;
         }
+        isNumpadInit = false;
         LayoutRebuilder.ForceRebuildLayoutImmediate(setValContainer.GetComponent<RectTransform>());
     }
 }

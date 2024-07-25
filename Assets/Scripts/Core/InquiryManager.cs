@@ -87,6 +87,8 @@ public class InquiryManager : MonoBehaviour
     private bool isList = false;
     private bool isChart = false;
 
+    private bool isAllControllerSelected = false;
+
     public static Dictionary<string, GameObject> hgToggleInstances = new Dictionary<string, GameObject>();
     public static Dictionary<string, GameObject> lgToggleInstances = new Dictionary<string, GameObject>();
     public static Dictionary<string, GameObject> controllerToggleInstances = new Dictionary<string, GameObject>();
@@ -1038,9 +1040,11 @@ public class InquiryManager : MonoBehaviour
 
     private void ChangeLogSet()
     {
+        btnInquiry.onClick.RemoveAllListeners();
         string selectedIID = "all";
         string selectedCID = "all";
-        
+        isAllControllerSelected = true;
+
 
         objTrendSelected.SetActive(false);
         objTrendNotSelected.SetActive(true);
@@ -1073,6 +1077,7 @@ public class InquiryManager : MonoBehaviour
         {
             if (value)
             {
+                isAllControllerSelected = true;
                 foreach (var toggle in controllerToggleInstances)
                 {
                     toggle.Value.GetComponent<Toggle>().isOn = true;
@@ -1085,6 +1090,7 @@ public class InquiryManager : MonoBehaviour
             }
             else
             {
+                isAllControllerSelected = false;
                 foreach (var toggle in controllerToggleInstances)
                 {
                     toggle.Value.GetComponent<Toggle>().isOn = false;
@@ -1125,20 +1131,34 @@ public class InquiryManager : MonoBehaviour
         lgScrollView.gameObject.SetActive(false);
 
         //objStartDatePicker.GetComponent<DatePicker>().SelectedDate = DateTime.Today - TimeSpan.FromDays(7);
-        objStartDatePicker.GetComponent<DatePicker>().SelectedDate = DateTime.Today;
-        objEndDatePicker.GetComponent<DatePicker>().SelectedDate = DateTime.Today;
+        // 시작 날짜를 오늘의 00시 00분 00초로 설정
+        objStartDatePicker.GetComponent<DatePicker>().SelectedDate = DateTime.Today.Date;
+
+        // 종료 날짜를 오늘의 23시 59분 59초로 설정
+        objEndDatePicker.GetComponent<DatePicker>().SelectedDate = DateTime.Today.Date;
+
+        InquiryControlData.Instance.InquiryControl();
 
         RefreshSideUI();
         btnInquiry.onClick.RemoveAllListeners();
         btnInquiry.onClick.AddListener(() => {
-            InquiryControlData.Instance.InquirySpecificControl(selectedIID, selectedCID);
+            if (isAllControllerSelected)
+            {
+                InquiryControlData.Instance.InquiryControl();
+            }
+            else
+            {                
+                InquiryControlData.Instance.InquirySpecificControl(selectedIID, selectedCID);
+            }            
         });
     }
 
     private void ChangeLogAlarm()
     {
+        btnInquiry.onClick.RemoveAllListeners();
         string selectedIID = "all";
         string selectedCID = "all";
+        isAllControllerSelected = true;
 
         objTrendSelected.SetActive(false);
         objTrendNotSelected.SetActive(true);
@@ -1171,7 +1191,8 @@ public class InquiryManager : MonoBehaviour
         {
             if (value)
             {
-                foreach(var toggle in controllerToggleInstances)
+                isAllControllerSelected = true;
+                foreach (var toggle in controllerToggleInstances)
                 {
                     toggle.Value.GetComponent<Toggle>().isOn = true;
                     toggle.Value.GetComponent<Toggle>().onValueChanged.RemoveAllListeners();
@@ -1179,10 +1200,11 @@ public class InquiryManager : MonoBehaviour
                 controllerScrollView.gameObject.SetActive(false);
                 
                 selectedIID = "all";
-                selectedCID = "all";
+                selectedCID = "all";                
             }
             else
             {
+                isAllControllerSelected = false;
                 foreach (var toggle in controllerToggleInstances)
                 {
                     toggle.Value.GetComponent<Toggle>().isOn = false;
@@ -1194,13 +1216,11 @@ public class InquiryManager : MonoBehaviour
                             int activeControllerToggles = controllerToggleInstances.Count(kv => kv.Value.GetComponent<Toggle>().isOn);
                             if (activeControllerToggles > 1)
                             {
-                                webViewObject.SetVisibility(false);
                                 ScreenManager.Instance.CurrentPopUpState = ScreenManager.PopUpState.ErrorWarning;
                                 ScreenManager.Instance.txt_PopUpMsg.text = "컨트롤러 전체 혹은 개별 선택만 가능합니다.";
                                 ScreenManager.Instance.btnPopUpConfirm.onClick.RemoveAllListeners();
                                 ScreenManager.Instance.btnPopUpConfirm.onClick.AddListener(() => {
                                     ScreenManager.Instance.ClosePopUpMessage();
-                                    webViewObject.SetVisibility(true);
                                 });
 
                                 foreach (var toggle in controllerToggleInstances)
@@ -1229,13 +1249,25 @@ public class InquiryManager : MonoBehaviour
         hgScrollView.gameObject.SetActive(false);
         lgScrollView.gameObject.SetActive(false);
 
-        objStartDatePicker.GetComponent<DatePicker>().SelectedDate = DateTime.Today;
-        objEndDatePicker.GetComponent<DatePicker>().SelectedDate = DateTime.Today;
+        // 시작 날짜를 오늘의 00시 00분 00초로 설정
+        objStartDatePicker.GetComponent<DatePicker>().SelectedDate = DateTime.Today.Date;
+
+        // 종료 날짜를 오늘의 23시 59분 59초로 설정
+        objEndDatePicker.GetComponent<DatePicker>().SelectedDate = DateTime.Today.Date;
+
+        InquiryAlarmData.Instance.InquiryAlarm();
 
         RefreshSideUI();
         btnInquiry.onClick.RemoveAllListeners();
         btnInquiry.onClick.AddListener(() => {
-            InquiryAlarmData.Instance.InquirySpecificAlarm(selectedIID, selectedCID);
+            if (isAllControllerSelected)
+            {
+                InquiryAlarmData.Instance.InquiryAlarm();
+            }
+            else
+            {
+                InquiryAlarmData.Instance.InquirySpecificAlarm(selectedIID, selectedCID);
+            }
         } );
     }
 

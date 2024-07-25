@@ -49,6 +49,7 @@ public class ClientDatabase : MonoBehaviour
     public static DataSet lowGroupData;
     public static DataSet realTimeWarningData;
     public static DataSet protocolListData;
+    public static DataSet configData;
 
     public GameObject controllerScrollViewGrid;
     public GameObject controllerScrollViewList;
@@ -125,6 +126,8 @@ public class ClientDatabase : MonoBehaviour
     Color up3PercentColor = new Color(255 / 255f, 181 / 255f, 126 / 255f, 1f); // FFB57E, 투명도 1
     Color up5PercentColor = new Color(255 / 255f, 130 / 255f, 126 / 255f, 1f); // FF827E, 투명도 1
     Color normalUnitColor = new Color(153 / 255f, 153 / 255f, 153 / 255f, 1f); // 999999로, 투명도 1
+
+    private bool isThemeLoad = false;
 
     private void Awake()
     {
@@ -208,34 +211,7 @@ public class ClientDatabase : MonoBehaviour
 
         yield return new WaitForSeconds(3f);
 
-
-        DataSet ds = ClientDatabase.FetchConfigData();
-        
-
-        if (ds != null && ds.Tables.Count > 0)
-        {
-            DataTable tblConfig = ds.Tables[0];
-            foreach (DataRow row in tblConfig.Rows)
-            {
-                vendorName = row["VENDOR_NAME"].ToString();
-                logoImg = row["SEL_UI"].ToString();
-                urlLogoImg = $"http://cloud.systronics.co.kr/img/def_skin/{logoImg}";
-                //urlLogoImg = $"https://www.newyorkburger.co.kr/w/img/img_m11_s06.png";
-                
-                logoWelcomeText.text = vendorName;
-
-                if(logoImg.Length == 0)
-                {
-                    logoImage.gameObject.SetActive(false);
-                    logoText.text = vendorName;
-                }
-                else
-                {
-                    StartCoroutine(DownloadImage(urlLogoImg));
-                }
-            }            
-        }
-
+        configData = FetchConfigData();
         realTimeData = FetchRealTimeData();
         interfaceData = FetchInterfaceData();
         controllerData = FetchControllerData();
@@ -243,7 +219,9 @@ public class ClientDatabase : MonoBehaviour
         lowGroupData = FetchLowGroupData();
         realTimeWarningData = FetchRealTimeWarningData();
         protocolListData = FetchProtocolList();
-        isPolling = true;        
+        isPolling = true;
+
+       
 
         StartCoroutine(DBPolling());
 
@@ -273,6 +251,33 @@ public class ClientDatabase : MonoBehaviour
         }
     }
 
+    public void LoadTheme()
+    {
+        if (configData != null && configData.Tables.Count > 0)
+        {
+            DataTable tblConfig = configData.Tables[0];
+            foreach (DataRow row in tblConfig.Rows)
+            {
+                vendorName = row["VENDOR_NAME"].ToString();
+                logoImg = row["SEL_UI"].ToString();
+                urlLogoImg = $"http://cloud.systronics.co.kr/img/def_skin/{logoImg}";
+
+                logoWelcomeText.text = vendorName;
+
+                if (logoImg.Length == 0)
+                {
+                    logoImage.gameObject.SetActive(false);
+                    logoText.text = vendorName;
+                }
+                else
+                {
+                    StartCoroutine(DownloadImage(urlLogoImg));
+                }
+            }
+
+            ColorThemeManager.Instance.ApplyTheme();
+        }
+    }
 
     private void ParsePollingData(string iid, string cid)
     {
@@ -296,12 +301,21 @@ public class ClientDatabase : MonoBehaviour
 
         }
     }
+
     IEnumerator DBPolling()
     {
         while (true)
         {
+            if (!isThemeLoad)
+            {
+                //yield return new WaitUntil(() => ConfigManager.Instance.GetSetting("FIRSTSTART") == "false");
+                LoadTheme();
+                isThemeLoad = true;
+            }
+
             if (isPolling)
             {
+                configData = FetchConfigData();
                 realTimeData = FetchRealTimeData();
                 yield return processInterval;
                 interfaceData = FetchInterfaceData();
@@ -2262,6 +2276,8 @@ public class ClientDatabase : MonoBehaviour
 
     public static DataSet FetchControllingData(DateTime sDate, DateTime eDate, string iid, string cid)
     {
+        Debug.Log($"{sDate}, {eDate}, {iid}, {cid}");
+
         string startDate = sDate.ToString("yyyy-MM-dd HH:mm:ss");
         string endDate = eDate.ToString("yyyy-MM-dd HH:mm:ss");
         if (iid == "all" && cid == "all")

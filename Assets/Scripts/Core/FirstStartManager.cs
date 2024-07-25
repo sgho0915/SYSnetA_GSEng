@@ -1,10 +1,14 @@
 using MySqlConnector;
 using System;
+using System.Data;
 using System.IO;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI; // 씬 관리를 위해 추가
+using System.Collections;
+using System.Collections.Generic;
 
 public class FirstStartManager : MonoBehaviour
 {
@@ -21,6 +25,15 @@ public class FirstStartManager : MonoBehaviour
     public GameObject firstSet_Interface;
     public GameObject firstSet_Controller;
     public GameObject firstSet_Finish;
+
+    public Image logoImage;
+    public TextMeshProUGUI logoText;
+    public TextMeshProUGUI logoWelcomeText;
+
+    string vendorName = string.Empty;
+    string logoImg = string.Empty;
+    string urlLogoImg = string.Empty;
+
     public static FirstStartManager Instance { get; private set; }
     void Awake()
     {
@@ -236,7 +249,51 @@ public class FirstStartManager : MonoBehaviour
             ConfigManager.Instance.SetSetting("FIRSTSTART", "false");
             firstSet_Finish.SetActive(false);
             firstStartScreen.SetActive(false);
-            screenManager.GotoMain();            
+            screenManager.GotoMain();
+
+            if (ClientDatabase.configData != null && ClientDatabase.configData.Tables.Count > 0)
+            {
+                DataTable tblConfig = ClientDatabase.configData.Tables[0];
+                foreach (DataRow row in tblConfig.Rows)
+                {
+                    vendorName = row["VENDOR_NAME"].ToString();
+                    logoImg = row["SEL_UI"].ToString();
+                    urlLogoImg = $"http://cloud.systronics.co.kr/img/def_skin/{logoImg}";
+                    logoWelcomeText.text = vendorName;
+
+                    if (logoImg.Length == 0)
+                    {
+                        logoImage.gameObject.SetActive(false);
+                        logoText.text = vendorName;
+                    }
+                    else
+                    {
+                        StartCoroutine(DownloadImage(urlLogoImg));
+                    }
+                }
+
+                ColorThemeManager.Instance.ApplyTheme();
+            }
         });
+    }
+
+    IEnumerator DownloadImage(string url)
+    {
+        UnityWebRequest request = UnityWebRequestTexture.GetTexture(url);
+        yield return request.SendWebRequest();
+
+        if (request.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError(request.error);
+            logoImage.gameObject.SetActive(false);
+            logoText.text = vendorName;
+        }
+        else
+        {
+            Texture2D texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
+            Sprite sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+            logoImage.sprite = sprite;
+            logoText.gameObject.SetActive(false);
+        }
     }
 }

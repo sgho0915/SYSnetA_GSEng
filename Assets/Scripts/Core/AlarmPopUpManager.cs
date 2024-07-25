@@ -135,16 +135,19 @@ public class AlarmPopUpManager : MonoBehaviour
         Canvas.ForceUpdateCanvases();
     }
 
-    public void ShowSpecificControllerAlarm(DataSet realTimeWarningDataSet, string currentIID, string currentCID)
+    public void ShowSpecificControllerAlarm(DataSet realTimeWarningDataSet, string currentIID, string currentCID, string currentCname)
     {
         DataTable realTimeWarningTable = realTimeWarningDataSet.Tables[0];
         HashSet<string> currentAlarms = new HashSet<string>();
+
+        string cname = string.Empty;
 
         foreach (DataRow row in realTimeWarningTable.Rows)
         {
             string occuredTime = row["WTIME"].ToString();
             string iid = row["ID"].ToString();
             string cid = row["CID"].ToString();
+            cname = row["CNAME"].ToString();
             string addr = row["ADDR"].ToString();
             string mask = row["MASK"].ToString();
             string targetName = $"AlarmElement_{iid}_{cid}_{addr}_{mask}_{occuredTime}";
@@ -168,7 +171,7 @@ public class AlarmPopUpManager : MonoBehaviour
             string alarmIID = alarmArr[1];
             string alarmCID = alarmArr[2];
 
-            if (alarmIID == currentIID && alarmCID == currentCID)
+            if (alarmIID == currentIID && alarmCID == currentCID && cname == currentCname)
             {
                 entry.Value.SetActive(true);
             }

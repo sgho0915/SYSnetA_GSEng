@@ -74,7 +74,7 @@ public class ConfigManager : MonoBehaviour
             {"TOUCH_SOUND", "1"},
             {"ALARM_SOUND", "1"},
             {"COLOR_THEME", "1"},
-            {"WEATHER_USE", "1"}            
+            {"WEATHER_USE", "0"}            
         // 기존에 설정에서 추가하고 싶은 기본 설정 추가
     };
 

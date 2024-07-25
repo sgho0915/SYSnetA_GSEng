@@ -209,7 +209,15 @@ public class DetailView : MonoBehaviour
         btnShowAlarmPopUp.onClick.RemoveAllListeners();
         btnShowAlarmPopUp.onClick.AddListener(() =>
         {
-            AlarmPopUpManager.Instance.ShowSpecificControllerAlarm(ClientDatabase.realTimeWarningData, currentSelectedIID, currentSelectedCID);
+            string currentSelectedCNAME = string.Empty;
+            foreach (DataRow row in ClientDatabase.controllerData.Tables[0].Rows)
+            {
+                if (row["ID"].ToString() == currentSelectedIID && row["CID"].ToString() == currentSelectedCID)
+                {
+                    currentSelectedCNAME = row["CNAME"].ToString();
+                }
+            }
+            AlarmPopUpManager.Instance.ShowSpecificControllerAlarm(ClientDatabase.realTimeWarningData, currentSelectedIID, currentSelectedCID, currentSelectedCNAME);
         });
 
         if (screenManager.CurrentScreenState == ScreenState.FloorPlan)
@@ -1666,7 +1674,7 @@ public class DetailView : MonoBehaviour
     {
         // numpad 스타일 인스턴스 업데이트 로직
         if (tagAttributes["style"] == "numpad" && tagAttributes.TryGetValue("multiply", out var multiply))
-        {
+        {            
             string finalUnit = string.Empty;
             string finalMultiply = string.Empty;
 
@@ -1835,7 +1843,7 @@ public class DetailView : MonoBehaviour
                     {
                         //if (scaledValue == (float.Parse(nouse) / float.Parse(tagAttributes["multiply"])).ToString())
                         if (rawValue == int.Parse(nouse))
-                        {
+                        {                   
                             // 단순 사용안함 값이 존재하고, 사용안함 값이 현재 값과 동일한 경우
                             setElementInstance.transform.Find("btn_Setting/obj_Value/txt_Value").GetComponent<TextMeshProUGUI>().text = "사용안함";
                             setElementInstance.transform.Find("btn_Setting/obj_Value/txt_Unit").GetComponent<TextMeshProUGUI>().text = string.Empty;
@@ -1850,13 +1858,28 @@ public class DetailView : MonoBehaviour
                     setElementInstance.transform.Find("btn_Setting/obj_Value/txt_Unit").GetComponent<TextMeshProUGUI>().text = unit;
                 }
 
+
+                // 사용안함 값(nouse)이 존재하는 경우
                 if (tagAttributes.TryGetValue("setValueStr", out var setValueStr))
                 {
-                    setElementInstance.transform.Find("btn_Setting/obj_Value/txt_Value").GetComponent<TextMeshProUGUI>().text = $"{setValueStr.Split('|')[1]}";
-                    setElementInstance.transform.Find("btn_Setting/obj_Value/txt_Unit").GetComponent<TextMeshProUGUI>().text = string.Empty;
+                    if (tagAttributes.TryGetValue("nouseStr", out var nouseStr) && scaledValue == (float.Parse(nouse) / float.Parse(tagAttributes["multiply"])).ToString())
+                    {
+                        // 사용안함 값이 현재 값과 동일하고, 사용안함 값에 대한 별도의 문자열이 있는 경우
+                        setElementInstance.transform.Find("btn_Setting/obj_Value/txt_Value").GetComponent<TextMeshProUGUI>().text = $"{nouseStr}";
+                        setElementInstance.transform.Find("btn_Setting/obj_Value/txt_Unit").GetComponent<TextMeshProUGUI>().text = string.Empty;
+                    }
+                    if (rawValue == int.Parse(nouse))
+                    {
+                        // 단순 사용안함 값이 존재하고, 사용안함 값이 현재 값과 동일한 경우
+                        setElementInstance.transform.Find("btn_Setting/obj_Value/txt_Value").GetComponent<TextMeshProUGUI>().text = "사용안함";
+                        setElementInstance.transform.Find("btn_Setting/obj_Value/txt_Unit").GetComponent<TextMeshProUGUI>().text = string.Empty;
+                    }
+                    if (rawValue == int.Parse(setValueStr.Split('|')[0]))
+                    {
+                        setElementInstance.transform.Find("btn_Setting/obj_Value/txt_Value").GetComponent<TextMeshProUGUI>().text = $"{setValueStr.Split('|')[1]}";
+                        setElementInstance.transform.Find("btn_Setting/obj_Value/txt_Unit").GetComponent<TextMeshProUGUI>().text = string.Empty;
+                    }
                 }
-
-
 
                 setElementInstance.transform.Find("btn_Setting").GetComponent<Button>().onClick.RemoveAllListeners();
                 setElementInstance.transform.Find("btn_Setting").GetComponent<Button>().onClick.AddListener(() =>
@@ -1970,8 +1993,9 @@ public class DetailView : MonoBehaviour
         if (tagAttributes["style"] == "dropdown")
         {
             string[] itemsData = tagAttributes["items"].Split(',');
-
-            int index = int.Parse(tagAttributes["addr"]) < 200 ? (int)Math.Round(parsedPollingData[int.Parse(tagAttributes["addr"])] / float.Parse(tagAttributes["multiply"])) : (int)Math.Round(parsedPollingData[int.Parse(tagAttributes["addr"]) - 200] / float.Parse(tagAttributes["multiply"]));
+            //int index = int.Parse(tagAttributes["addr"]) < 200 ? (int)Math.Round(parsedPollingData[int.Parse(tagAttributes["addr"])] / float.Parse(tagAttributes["multiply"])) : (int)Math.Round(parsedPollingData[int.Parse(tagAttributes["addr"]) - 200] / float.Parse(tagAttributes["multiply"]));
+            
+            int index = int.Parse(tagAttributes["addr"]) < 200 ? parsedPollingData[int.Parse(tagAttributes["addr"])] : parsedPollingData[int.Parse(tagAttributes["addr"]) - 200];
             setElementInstance.transform.Find("btn_Setting/obj_Value/txt_Value").GetComponent<TextMeshProUGUI>().text = itemsData[index];
 
             setElementInstance.transform.Find("btn_Setting").GetComponent<Button>().onClick.RemoveAllListeners();
@@ -2020,7 +2044,7 @@ public class DetailView : MonoBehaviour
                     bool isBitSet = (rawValue & (1 << bitIndex)) != 0;
 
                     // 비트별 오브젝트 이름 정확히 구성
-                    string specificSetName = $"SetElement_{$"{groupName}"}_{tagAttributes["addr"]}_Bit{bitIndex}";
+                    string specificSetName = $"SetElement_{$"{groupName}"}_{tagAttributes["addr"]}_{iid}_{cid}_Bit{bitIndex}";
 
                     if (dvSetElementInstances.TryGetValue(specificSetName, out var specificSetElementInstance))
                     {
@@ -2545,6 +2569,8 @@ public class DetailView : MonoBehaviour
     // numpad 팝업에 대한 리스너
     private void SetNumpadDatas(string addr, string iid, string cid, int rawValue, float scaledValue, string unit, string min, string max, string multiply, string size, Dictionary<string, string> tagAttributes)
     {
+        Debug.Log($"{addr}, {iid}, {cid}, {rawValue}, {scaledValue}, {multiply}");
+
         setting_Numpad.SetActive(true);
         SettingNumPad.InitNumpad();
         SettingNumPad.txtCategoryName.text = currentSelectedGroupTitle;
@@ -2659,24 +2685,7 @@ public class DetailView : MonoBehaviour
                     SettingNumPad.txtSetValue.text = nouseStr;
                     SettingNumPad.txtSetUnit.text = string.Empty;
 
-                    SettingNumPad.toggleNoUse.onValueChanged.RemoveAllListeners();
-                    SettingNumPad.toggleNoUse.onValueChanged.AddListener((isOn) =>
-                    {
-                        if (isOn)
-                        {
-                            // 토글이 켜진 경우, "사용안함" 또는 특정 문자열로 설정
-                            SettingNumPad.toggleSetValStr.isOn = false;
-                            SettingNumPad.txtSetValue.text = nouseStr; // "사용안함" 또는 다른 특정 문자열
-                            SettingNumPad.txtSetUnit.text = string.Empty;
-                        }
-                        else
-                        {
-                            // 토글이 꺼진 경우, 원래의 값(스케일 조정된 값)으로 설정
-                            float originalValue = rawValue / float.Parse(multiply);
-                            SettingNumPad.txtSetValue.text = originalValue.ToString();
-                            SettingNumPad.txtSetUnit.text = $"{unit}";
-                        }
-                    });
+                    
                 }
                 else
                 {
@@ -2687,26 +2696,26 @@ public class DetailView : MonoBehaviour
 
                     SettingNumPad.txtSetValue.text = $"{scaledValue}";
                     SettingNumPad.txtSetUnit.text = $"{unit}";
-
-                    SettingNumPad.toggleNoUse.onValueChanged.RemoveAllListeners();
-                    SettingNumPad.toggleNoUse.onValueChanged.AddListener((isOn) =>
-                    {
-                        if (isOn)
-                        {
-                            SettingNumPad.toggleSetValStr.isOn = false;
-                            // 토글이 켜진 경우, "사용안함" 또는 특정 문자열로 설정
-                            SettingNumPad.txtSetValue.text = nouseStr; // "사용안함" 또는 다른 특정 문자열
-                            SettingNumPad.txtSetUnit.text = string.Empty;
-                        }
-                        else
-                        {
-                            // 토글이 꺼진 경우, 원래의 값(스케일 조정된 값)으로 설정
-                            float originalValue = rawValue / float.Parse(multiply);
-                            SettingNumPad.txtSetValue.text = originalValue.ToString();
-                            SettingNumPad.txtSetUnit.text = $"{unit}";
-                        }
-                    });
                 }
+
+                SettingNumPad.toggleNoUse.onValueChanged.RemoveAllListeners();
+                SettingNumPad.toggleNoUse.onValueChanged.AddListener((isOn) =>
+                {
+                    if (isOn)
+                    {
+                        // 토글이 켜진 경우, "사용안함" 또는 특정 문자열로 설정
+                        SettingNumPad.toggleSetValStr.isOn = false;
+                        SettingNumPad.txtSetValue.text = nouseStr; // "사용안함" 또는 다른 특정 문자열
+                        SettingNumPad.txtSetUnit.text = string.Empty;
+                    }
+                    else
+                    {
+                        // 토글이 꺼진 경우, 원래의 값(스케일 조정된 값)으로 설정
+                        float originalValue = rawValue / float.Parse(multiply);
+                        SettingNumPad.txtSetValue.text = originalValue.ToString();
+                        SettingNumPad.txtSetUnit.text = $"{unit}";
+                    }
+                });
             }
             else
             {
@@ -2721,24 +2730,7 @@ public class DetailView : MonoBehaviour
                     SettingNumPad.txtSetValue.text = "사용안함";
                     SettingNumPad.txtSetUnit.text = string.Empty;
 
-                    SettingNumPad.toggleNoUse.onValueChanged.RemoveAllListeners();
-                    SettingNumPad.toggleNoUse.onValueChanged.AddListener((isOn) =>
-                    {
-                        if (isOn)
-                        {
-                            // 토글이 켜진 경우, "사용안함" 또는 특정 문자열로 설정
-                            SettingNumPad.toggleSetValStr.isOn = false;
-                            SettingNumPad.txtSetValue.text = "사용안함"; // "사용안함" 또는 다른 특정 문자열
-                            SettingNumPad.txtSetUnit.text = string.Empty;
-                        }
-                        else
-                        {
-                            // 토글이 꺼진 경우, 원래의 값(스케일 조정된 값)으로 설정
-                            float originalValue = rawValue / float.Parse(multiply);
-                            SettingNumPad.txtSetValue.text = originalValue.ToString();
-                            SettingNumPad.txtSetUnit.text = $"{unit}";
-                        }
-                    });
+                    
                 }
                 else
                 {
@@ -2749,26 +2741,26 @@ public class DetailView : MonoBehaviour
 
                     SettingNumPad.txtSetValue.text = $"{scaledValue}";
                     SettingNumPad.txtSetUnit.text = $"{unit}";
-
-                    SettingNumPad.toggleNoUse.onValueChanged.RemoveAllListeners();
-                    SettingNumPad.toggleNoUse.onValueChanged.AddListener((isOn) =>
-                    {
-                        if (isOn)
-                        {
-                            // 토글이 켜진 경우, "사용안함" 또는 특정 문자열로 설정
-                            SettingNumPad.toggleSetValStr.isOn = false;
-                            SettingNumPad.txtSetValue.text = "사용안함"; // "사용안함" 또는 다른 특정 문자열
-                            SettingNumPad.txtSetUnit.text = string.Empty;
-                        }
-                        else
-                        {
-                            // 토글이 꺼진 경우, 원래의 값(스케일 조정된 값)으로 설정
-                            float originalValue = rawValue / float.Parse(multiply);
-                            SettingNumPad.txtSetValue.text = originalValue.ToString();
-                            SettingNumPad.txtSetUnit.text = $"{unit}";
-                        }
-                    });
                 }
+
+                SettingNumPad.toggleNoUse.onValueChanged.RemoveAllListeners();
+                SettingNumPad.toggleNoUse.onValueChanged.AddListener((isOn) =>
+                {
+                    if (isOn)
+                    {
+                        // 토글이 켜진 경우, "사용안함" 또는 특정 문자열로 설정
+                        SettingNumPad.toggleSetValStr.isOn = false;
+                        SettingNumPad.txtSetValue.text = "사용안함"; // "사용안함" 또는 다른 특정 문자열
+                        SettingNumPad.txtSetUnit.text = string.Empty;
+                    }
+                    else
+                    {
+                        // 토글이 꺼진 경우, 원래의 값(스케일 조정된 값)으로 설정
+                        float originalValue = rawValue / float.Parse(multiply);
+                        SettingNumPad.txtSetValue.text = originalValue.ToString();
+                        SettingNumPad.txtSetUnit.text = $"{unit}";
+                    }
+                });
 
                 if (currentPkey == "UC0815120104610507")
                 {
@@ -2816,9 +2808,6 @@ public class DetailView : MonoBehaviour
         {
             // 사용안함 속성이 tag 태그에 존재하지 않을 경우
             SettingNumPad.toggleNoUse.gameObject.SetActive(false);
-            SettingNumPad.toggleNoUse.interactable = false;
-            SettingNumPad.toggleNoUse.isOn = false;
-            SettingNumPad.txtNoUseStr.text = "사용안함";
         }
 
         // 특정 값에 대한 문자열 대입 속성(setValueStr)이 존재하는 경우
@@ -2832,10 +2821,10 @@ public class DetailView : MonoBehaviour
             {
                 if (isOn)
                 {
-                    // 토글이 켜진 경우, "사용안함" 또는 특정 문자열로 설정
+                    // 토글이 켜진 경우, "사용안함" 또는 특정 문자열로 설정                    
+                    SettingNumPad.toggleNoUse.isOn = false;
                     SettingNumPad.txtSetValue.text = $"{tagAttributes["setValueStr"].Split('|')[1]}"; ; // "사용안함" 또는 다른 특정 문자열
                     SettingNumPad.txtSetUnit.text = string.Empty;
-                    SettingNumPad.toggleNoUse.isOn=false;
                 }
                 else
                 {
@@ -2853,6 +2842,7 @@ public class DetailView : MonoBehaviour
                 SettingNumPad.toggleSetValStr.isOn = true;
                 SettingNumPad.txtCurrentValue.text = $"{tagAttributes["setValueStr"].Split('|')[1]}";
                 SettingNumPad.txtSetValStr.text = $"{tagAttributes["setValueStr"].Split('|')[1]}";
+
                 SettingNumPad.txtSetValue.text = $"{tagAttributes["setValueStr"].Split('|')[1]}";
                 SettingNumPad.txtSetUnit.text = string.Empty;
             }
@@ -2860,6 +2850,37 @@ public class DetailView : MonoBehaviour
         else
         {
             SettingNumPad.toggleSetValStr.gameObject.SetActive(false);
+        }
+
+
+        // 사용안함 값(nouse)이 존재하는 경우
+        if (setValueStr != null && nouse != null)
+        {
+            SettingNumPad.txtSetValue.text = $"{scaledValue}";
+            SettingNumPad.txtSetUnit.text = unit;
+
+            if (tagAttributes.TryGetValue("nouseStr", out var nouseStr) && scaledValue == (float.Parse(nouse) / float.Parse(tagAttributes["multiply"])))
+            {
+                // 사용안함 값이 현재 값과 동일하고, 사용안함 값에 대한 별도의 문자열이 있는 경우
+                SettingNumPad.txtSetValue.text = $"{nouseStr}";
+                SettingNumPad.txtSetUnit.text = string.Empty;
+            }
+            if (rawValue == int.Parse(nouse))
+            {
+                // 단순 사용안함 값이 존재하고, 사용안함 값이 현재 값과 동일한 경우
+                SettingNumPad.txtSetValue.text = $"사용안함";
+                SettingNumPad.txtSetUnit.text = string.Empty;
+            }
+            if (rawValue == int.Parse(setValueStr.Split('|')[0]))
+            {
+                SettingNumPad.txtSetValue.text = $"{setValueStr.Split('|')[1]}";
+                SettingNumPad.txtSetUnit.text = string.Empty;
+            }
+        }
+        else
+        {
+            SettingNumPad.txtSetValue.text = $"{scaledValue}";
+            SettingNumPad.txtSetUnit.text = unit;
         }
 
         SettingNumPad.btnOK.onClick.RemoveAllListeners(); // 기존 리스너 제거
@@ -2872,22 +2893,23 @@ public class DetailView : MonoBehaviour
 
                 if (SettingNumPad.toggleNoUse.isOn)
                 {
-                    int setRawValue = (int)(float.Parse(nouse) * float.Parse(multiply));
-                    hexValue = "0x" + ((ushort)setRawValue).ToString("X4");
+                    int setRawValue = (int)((float.Parse(nouse) * float.Parse(multiply)) / float.Parse(multiply));
+                    hexValue = "0x" + ((short)setRawValue).ToString("X4");
                     jsonString = $"{{\"Address\":{addr},\"Value\":\"{hexValue}\",\"Multiply\":\"{multiply}\",\"Size\":\"{size}\",\"Comment\":\"{tagAttributes["name"]}, {SettingNumPad.txtCurrentValue.text}에서 사용안함({nouse}{unit})(으)로 변경 : {addr}\"}}";
+                    Debug.Log($"{setRawValue}, {hexValue}, {(int)(float.Parse(nouse))}, {float.Parse(multiply)}");
                 }
 
                 if (SettingNumPad.toggleNoUse.isOn && tagAttributes.TryGetValue("nouseStr", out var nouseStr))
                 {
-                    int setRawValue = (int)(float.Parse(nouse) * float.Parse(multiply));
-                    hexValue = "0x" + ((ushort)setRawValue).ToString("X4");
+                    int setRawValue = (int)(float.Parse(nouse) / float.Parse(multiply));
+                    hexValue = "0x" + ((short)setRawValue).ToString("X4");
                     jsonString = $"{{\"Address\":{addr},\"Value\":\"{hexValue}\",\"Multiply\":\"{multiply}\",\"Size\":\"{size}\",\"Comment\":\"{tagAttributes["name"]}, {SettingNumPad.txtCurrentValue.text}에서 {nouseStr}({nouse}{unit})(으)로 변경 : {addr}\"}}";
                 }
 
                 if (!SettingNumPad.toggleNoUse.isOn)
                 {
-                    int setRawValue = (int)(float.Parse(SettingNumPad.txtSetValue.text) * float.Parse(multiply));
-                    hexValue = "0x" + ((ushort)setRawValue).ToString("X4");
+                    int setRawValue = (int)(float.Parse(SettingNumPad.txtSetValue.text) / float.Parse(multiply));
+                    hexValue = "0x" + ((short)setRawValue).ToString("X4");
                     jsonString = $"{{\"Address\":{addr},\"Value\":\"{hexValue}\",\"Multiply\":\"{multiply}\",\"Size\":\"{size}\",\"Comment\":\"{tagAttributes["name"]}, {SettingNumPad.txtCurrentValue.text}에서 {SettingNumPad.txtSetValue.text}{unit}(으)로 변경 : {addr}\"}}";
                 }
 

@@ -57,6 +57,32 @@ public class ColorThemeManager : MonoBehaviour
         ApplyColor(colorThemeData);
     }
 
+    public void ApplyTheme()
+    {
+        string systemSet = string.Empty;
+        int colorThemeData = 0;
+        //DataTable tblConfig = ClientDatabase.FetchConfigData().Tables[0];
+        DataSet ds = ClientDatabase.FetchConfigData();
+        if (ds != null && ds.Tables.Count > 0)
+        {
+            DataTable tblConfig = ds.Tables[0];
+            foreach (DataRow row in tblConfig.Rows)
+            {
+                systemSet = row["SYSTEM_SET"].ToString(); // 시스템설정 Json
+            }
+        }
+        else
+        {
+            Debug.LogError("config data is null");
+            return;
+        }
+
+        SystemSettings systemSetJson = JsonUtility.FromJson<SystemSettings>(systemSet);
+        colorThemeData = int.Parse(systemSetJson.colorTheme);
+        colorIdx = colorThemeData;
+        ApplyColor(colorThemeData);
+    }
+
     public void ApplyToObj(Color applyColor)
     {
         foreach (var border in BorderList)

@@ -17,7 +17,8 @@ public class CheckOTA : MonoBehaviour
 
     public string chkUpdateUrl = string.Empty;
     public string downloadUpdateUrl = string.Empty;
-    
+
+    private string bcode = "GSENG";
 
     public static CheckOTA Instance { get; private set; }
 
@@ -39,21 +40,19 @@ public class CheckOTA : MonoBehaviour
         {
             if (!ClientDatabase.isTestMode)
             {
-                chkUpdateUrl = "http://cloud.systronics.co.kr/app/?BCODE=NY_BURGER";
-                downloadUpdateUrl = "http://cloud.systronics.co.kr/app/?BCODE=NY_BURGER&DOWNLOAD=Y";
+                chkUpdateUrl = $"http://cloud.systronics.co.kr/app/?BCODE={bcode}";
+                downloadUpdateUrl = $"http://cloud.systronics.co.kr/app/?BCODE={bcode}&DOWNLOAD=Y";
             }
             else
             {
-                chkUpdateUrl = "http://cloud.systronics.co.kr/app/?BCODE=NY_BURGER_TEST";
-                downloadUpdateUrl = "http://cloud.systronics.co.kr/app/?BCODE=NY_BURGER_TEST&DOWNLOAD=Y";
+                chkUpdateUrl = $"http://cloud.systronics.co.kr/app/?BCODE=NY_BURGER_TEST";
+                downloadUpdateUrl = $"http://cloud.systronics.co.kr/app/?BCODE=NY_BURGER_TEST&DOWNLOAD=Y";
             }
         }
         if (Application.platform == RuntimePlatform.WindowsEditor)
         {
-            //chkUpdateUrl = "http://cloud.systronics.co.kr/app/?BCODE=NY_BURGER_TEST";
-            //downloadUpdateUrl = "http://cloud.systronics.co.kr/app/?BCODE=NY_BURGER_TEST&DOWNLOAD=Y";
-            chkUpdateUrl = "http://cloud.systronics.co.kr/app/?BCODE=NY_BURGER";
-            downloadUpdateUrl = "http://cloud.systronics.co.kr/app/?BCODE=NY_BURGER&DOWNLOAD=Y";
+            chkUpdateUrl = $"http://cloud.systronics.co.kr/app/?BCODE={bcode}";
+            downloadUpdateUrl = $"http://cloud.systronics.co.kr/app/?BCODE={bcode}&DOWNLOAD=Y";
         }
         if (chdAutoUpdateCoroutine == null && ConfigManager.Instance.GetSetting("AUTO_UPDATE_CHECK") == "true")
             chdAutoUpdateCoroutine = StartCoroutine(AutoUpdateCheck(chkUpdateUrl));

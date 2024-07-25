@@ -68,7 +68,7 @@ namespace Develop._01GeneralListGUI
         {
             _listViewInquiryAlarmUI.DataSource.Clear();
             DateTime sDate = InquiryManager.Instance.objStartDatePicker.GetComponent<DatePicker>().SelectedDate;
-            DateTime eDate = InquiryManager.Instance.objEndDatePicker.GetComponent<DatePicker>().SelectedDate;
+            DateTime eDate = InquiryManager.Instance.objEndDatePicker.GetComponent<DatePicker>().SelectedDate.Date.AddDays(1).AddSeconds(-1);
 
             DataTable dataTable = ClientDatabase.FetchWarningData(sDate, eDate, iid, cid).Tables[0];
             string otime = string.Empty;
@@ -76,12 +76,24 @@ namespace Develop._01GeneralListGUI
             string cname = string.Empty;
             string desc = string.Empty;
 
+            if (dataTable.Rows.Count < 1)
+            {
+                ScreenManager.Instance.CurrentPopUpState = ScreenManager.PopUpState.ErrorWarning;
+                ScreenManager.Instance.txt_PopUpMsg.text = "조회 결과가 없습니다.";
+                ScreenManager.Instance.btnPopUpConfirm.onClick.RemoveAllListeners();
+                ScreenManager.Instance.btnPopUpConfirm.onClick.AddListener(() => {
+                    ScreenManager.Instance.ClosePopUpMessage();
+                });
+            }
+
             foreach (DataRow row in dataTable.Rows)
             {
                 otime = row["OCCUR_TIME"].ToString();
                 ctime = row["UNSET_TIME"].ToString();
                 cname = row["CNAME"].ToString();
                 desc = row["DESC"].ToString();
+
+                Debug.Log($"{otime}, {ctime}, {cname}, {desc}");
 
                 InquiryAlarmUI _inquiryAlarmUI = new InquiryAlarmUI(otime, ctime, cname, desc);
                 _listViewInquiryAlarmUI.DataSource.Add(_inquiryAlarmUI);

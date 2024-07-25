@@ -45,19 +45,60 @@ public class FCMNotifier : MonoBehaviour
         SendFCMMessage($"{token}", $"{title}", $"{body}");
     }
 
+    //private async Task<string> GetAccessTokenAsync()
+    //{
+    //    string jsonPath = Path.Combine(Application.streamingAssetsPath, "sysnet-android-firebase-adminsdk-idbg2-54fd4ebc7b.json");
+    //    string[] scopes = { "https://www.googleapis.com/auth/firebase.messaging" };
+
+    //    GoogleCredential credential;
+    //    using (var stream = new FileStream(jsonPath, FileMode.Open, FileAccess.Read))
+    //    {
+    //        credential = GoogleCredential.FromStream(stream).CreateScoped(scopes);
+    //    }
+
+    //    return await credential.UnderlyingCredential.GetAccessTokenForRequestAsync();
+    //}
+
     private async Task<string> GetAccessTokenAsync()
     {
-        string jsonPath = Path.Combine(Application.streamingAssetsPath, "sysnet-android-firebase-adminsdk-idbg2-42574b9fb6.json");
+        string jsonPath = Path.Combine(Application.streamingAssetsPath, "sysnet-android-firebase-adminsdk-idbg2-54fd4ebc7b.json");
         string[] scopes = { "https://www.googleapis.com/auth/firebase.messaging" };
+        string jsonContent = null;
+        GoogleCredential credential = null;
 
-        GoogleCredential credential;
-        using (var stream = new FileStream(jsonPath, FileMode.Open, FileAccess.Read))
+
+        if (Application.platform == RuntimePlatform.WindowsEditor)
         {
-            credential = GoogleCredential.FromStream(stream).CreateScoped(scopes);
+            using (var stream = new FileStream(jsonPath, FileMode.Open, FileAccess.Read))
+            {
+                credential = GoogleCredential.FromStream(stream).CreateScoped(scopes);
+            }
+        }
+        else if (Application.platform == RuntimePlatform.Android)
+        {
+            UnityWebRequest www = UnityWebRequest.Get(jsonPath);
+            var asyncOp = www.SendWebRequest();
+
+            while (!asyncOp.isDone)
+                await Task.Yield();
+
+            if (www.result != UnityWebRequest.Result.Success)
+            {
+                Debug.LogError("Failed to load JSON file: " + www.error);
+                return null;
+            }
+
+            jsonContent = www.downloadHandler.text;
+
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(jsonContent)))
+            {
+                credential = GoogleCredential.FromStream(stream).CreateScoped(scopes);
+            }
         }
 
         return await credential.UnderlyingCredential.GetAccessTokenForRequestAsync();
     }
+
 
     public void SendFCMMessage(string token, string title, string body)
     {

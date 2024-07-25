@@ -64,11 +64,15 @@ public class GeoCountry : MonoBehaviour
         StartCoroutine(LateStartCoroutine());
     }
 
-    IEnumerator LateStartCoroutine()
+    public IEnumerator LateStartCoroutine()
     {
         yield return new WaitForSeconds(1);
+        
         if (weatherCoroutine == null && SettingManager.weatherUse == 1)
+        {
+            objWeather.SetActive(true);
             weatherCoroutine = StartCoroutine(GetGeoData());
+        }
         else
             objWeather.SetActive(false);
     }

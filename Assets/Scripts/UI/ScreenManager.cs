@@ -191,13 +191,18 @@ public class ScreenManager : MonoBehaviour
 
     public IEnumerator UpdateTime()
     {
+        txt_RealTime.gameObject.SetActive(true);
+        DateTime currentTime = DateTime.Now;
+        string formattedTime = currentTime.ToString("yy.MM.dd  hh:mm tt");
+        txt_RealTime.text = formattedTime;
+
         while (true)
         {
             if (SettingManager.timeUse == 1)
             {
                 txt_RealTime.gameObject.SetActive(true);
-                DateTime currentTime = DateTime.Now;
-                string formattedTime = currentTime.ToString("yy.MM.dd  hh:mm tt");
+                currentTime = DateTime.Now;
+                formattedTime = currentTime.ToString("yy.MM.dd  hh:mm tt");
                 txt_RealTime.text = formattedTime;
             }
             else
