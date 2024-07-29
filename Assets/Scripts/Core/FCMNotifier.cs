@@ -61,7 +61,7 @@ public class FCMNotifier : MonoBehaviour
 
     private async Task<string> GetAccessTokenAsync()
     {
-        string jsonPath = Path.Combine(Application.streamingAssetsPath, "sysnet-android-firebase-adminsdk-idbg2-54fd4ebc7b.json");
+        string jsonPath = Path.Combine(Application.streamingAssetsPath, "sysnet-android-firebase-adminsdk-idbg2-d68ab82762.json");
         string[] scopes = { "https://www.googleapis.com/auth/firebase.messaging" };
         string jsonContent = null;
         GoogleCredential credential = null;

@@ -81,3 +81,4 @@ crashlytics-build.properties
 
 # 테스트 빌드 찌꺼기 파일 ignore
 *BurstDebugInformation_DoNotShip/
+Assets/StreamingAssets/

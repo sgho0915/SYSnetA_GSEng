@@ -18,7 +18,7 @@ public class CheckOTA : MonoBehaviour
     public string chkUpdateUrl = string.Empty;
     public string downloadUpdateUrl = string.Empty;
 
-    private string bcode = "GSENG";
+    private string bcode = "NY_BURGER";
 
     public static CheckOTA Instance { get; private set; }
 
