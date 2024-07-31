@@ -528,7 +528,7 @@ public class ClientDatabase : MonoBehaviour
             arrShowAddr = showAddr.Split(',');
             
 
-            if (pkey == "UC0224150200401102" || pkey == "02240601-001-00-208" || pkey == "UC0815120104610507" || pkey == "UC0713020103611349")
+            if (pkey == "UC0224150200401102" || pkey == "02240601-001-00-208" || pkey == "UC0815120104610507" || pkey == "UC0713020103611349" || pkey == "UC0224150200501110")
                 controllerIcon.sprite = controllerIconImgList[0]; // 유니트쿨러
             else if (pkey == "sensor")
                 controllerIcon.sprite = controllerIconImgList[1]; // 센서
@@ -1067,7 +1067,7 @@ public class ClientDatabase : MonoBehaviour
             showAddr = specificControllerData.Tables[0].Rows[0]["SHOW_ADDR"].ToString();
             arrShowAddr = showAddr.Split(',');
 
-            if (pkey == "UC0224150200401102" || pkey == "02240601-001-00-208" || pkey == "UC0815120104610507" || pkey == "UC0713020103611349")
+            if (pkey == "UC0224150200401102" || pkey == "02240601-001-00-208" || pkey == "UC0815120104610507" || pkey == "UC0713020103611349" || pkey == "UC0224150200501110")
                 controllerIcon.sprite = controllerIconImgList[0]; // 유니트쿨러
             else if (pkey == "sensor")
                 controllerIcon.sprite = controllerIconImgList[1]; // 센서

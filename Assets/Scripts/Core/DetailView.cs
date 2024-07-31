@@ -342,7 +342,7 @@ public class DetailView : MonoBehaviour
                     btnOperateRun.gameObject.SetActive(false);
                     dvWidgetState.SetActive(false);
                 }
-                else if (pkey == "07152101-011-00-170" || pkey == "UC0224150200401102" || pkey == "UC0815120104610507" || pkey == "UC0713020103611349") // 운전, 제상 있음
+                else if (pkey == "07152101-011-00-170" || pkey == "UC0224150200401102" || pkey == "UC0815120104610507" || pkey == "UC0713020103611349" && pkey == "UC0224150200501110") // 운전, 제상 있음
                 {
                     btnOperateDefrost.gameObject.SetActive(true);
                     btnOperateRun.gameObject.SetActive(true);
@@ -485,7 +485,14 @@ public class DetailView : MonoBehaviour
                             }
                             else
                             {
-                                UpdateWidgetInstance(widgetInstance, addr, tagName, finalUnit, finalMultiply);
+                                if (tag.Value.TryGetValue("useLong", out var useLong)) // 상위 바이트, 하위 바이트 결합 속성이 존재하는 경우에 대한 예외처리
+                                {
+                                    UpdateUseLongWidgetInstance(widgetInstance, addr, useLong, tagName, finalUnit, finalMultiply);
+                                }
+                                else
+                                {
+                                    UpdateWidgetInstance(widgetInstance, addr, tagName, finalUnit, finalMultiply);
+                                }
                             }
                         }
                         else
@@ -542,6 +549,15 @@ public class DetailView : MonoBehaviour
                                 if (addr == "231" || addr == "232")
                                     pressureList += $"_{addr}";
                                 if (addr == "240" || addr == "243" || addr == "246" || addr == "249" || addr == "252")
+                                    elecList += $"_{addr}";
+                            }
+                            else if (pkey == "UC0224150200501110") // 풀무원 루텍 예외처리
+                            {
+                                if (addr == "222" || addr == "235")
+                                    tempList += $"_{addr}";
+                                if (addr == "231" || addr == "232")
+                                    pressureList += $"_{addr}";
+                                if (addr == "240" || addr == "244" || addr == "248" || addr == "252" || addr == "256" || addr == "424" || addr == "426" || addr == "428" || addr == "430" || addr == "432")
                                     elecList += $"_{addr}";
                             }
                             else
@@ -624,6 +640,15 @@ public class DetailView : MonoBehaviour
                                 if (addr == "231" || addr == "232")
                                     pressureList += $"_{addr}";
                                 if (addr == "240" || addr == "243" || addr == "246" || addr == "249" || addr == "252")
+                                    elecList += $"_{addr}";
+                            }
+                            else if (pkey == "UC0224150200501110") // 풀무원 루텍 예외처리
+                            {
+                                if (addr == "222" || addr == "235")
+                                    tempList += $"_{addr}";
+                                if (addr == "231" || addr == "232")
+                                    pressureList += $"_{addr}";
+                                if (addr == "240" || addr == "244" || addr == "248" || addr == "252" || addr == "256" || addr == "424" || addr == "426" || addr == "428" || addr == "430" || addr == "432")
                                     elecList += $"_{addr}";
                             }
                             else
@@ -706,7 +731,7 @@ public class DetailView : MonoBehaviour
             }
 
             // 풀무원 예외처리
-            if (pkey == "UC0224150200401102")
+            if (pkey == "UC0224150200401102" || pkey == "UC0224150200501110")
             {
                 foreach (var addrList in pulmuoneNameList)
                 {
@@ -3329,10 +3354,9 @@ public class DetailView : MonoBehaviour
 
     private void ChangeWidgetColor(GameObject widgetInstance, TextMeshProUGUI trendName, TextMeshProUGUI trendValue, TextMeshProUGUI trendUnit, float oldValue, float newValue)
     {
-        float percentageChange = (newValue - oldValue) / oldValue * 100; // 변화율 계산
-
         if (newValue != oldValue)
         {
+            //Debug.Log($"trendName => {trendName.text} : {trendValue}, oldValue : {oldValue}, newValue : {newValue}");
             // 값이 변경되었다면 색상을 연두색으로 변경하고, 0.5초 후에 다시 흰색으로 되돌립니다.
             Image widgetImage = widgetInstance.GetComponent<Image>(); // Image 컴포넌트 참조
 
@@ -3347,37 +3371,6 @@ public class DetailView : MonoBehaviour
 
                 // 위젯 배경 흰색-(0.9초)->연두, 연두-(0.9초)->흰색
                 widgetImage.DOColor(normalTrendColor, 0.9f).OnComplete(() => widgetImage.DOColor(Color.white, 0.9f));
-
-                //// 변화율에 따라 색상 결정
-                //if (percentageChange >= 5)
-                //{
-                //    // 5% 이상 상승
-                //    // 위젯 배경 흰색-(0.9초)->연두, 연두-(0.9초)->흰색
-                //    widgetImage.DOColor(up5PercentColor, 0.9f).OnComplete(() => widgetImage.DOColor(Color.white, 0.9f));
-                //}
-                //else if (percentageChange >= 3)
-                //{
-                //    // 3% 이상 상승
-                //    // 위젯 배경 흰색-(0.9초)->연두, 연두-(0.9초)->흰색
-                //    widgetImage.DOColor(up3PercentColor, 0.9f).OnComplete(() => widgetImage.DOColor(Color.white, 0.9f));
-                //}
-                //else if (percentageChange <= -5)
-                //{
-                //    // 5% 이상 하락
-                //    // 위젯 배경 흰색-(0.9초)->연두, 연두-(0.9초)->흰색
-                //    widgetImage.DOColor(down5PercentColor, 0.9f).OnComplete(() => widgetImage.DOColor(Color.white, 0.9f));
-                //}
-                //else if (percentageChange <= -3)
-                //{
-                //    // 3% 이상 하락
-                //    // 위젯 배경 흰색-(0.9초)->연두, 연두-(0.9초)->흰색
-                //    widgetImage.DOColor(down3PercentColor, 0.9f).OnComplete(() => widgetImage.DOColor(Color.white, 0.9f));
-                //}
-                //else
-                //{
-                //    // 위젯 배경 흰색-(0.9초)->연두, 연두-(0.9초)->흰색
-                //    widgetImage.DOColor(normalTrendColor, 0.9f).OnComplete(() => widgetImage.DOColor(Color.white, 0.9f));
-                //}
             }
         }
     }
@@ -3415,6 +3408,55 @@ public class DetailView : MonoBehaviour
         trendUnit.text = unit;
 
         ChangeWidgetColor(widgetInstance, trendName, trendValue, trendUnit, oldValue, float.Parse(trendValue.text));
+
+        // 설정값이 있을 경우 설정값도 업데이트
+        if (widgetInstance.transform.Find("obj_SetValue") != null)
+        {
+            widgetInstance.transform.Find("obj_SetValue").gameObject.SetActive(false);
+        }
+    }
+
+    private void UpdateUseLongWidgetInstance(GameObject widgetInstance, string addr, string useLong, string tagName, string unit, string multiply)
+    {
+        TextMeshProUGUI trendName = widgetInstance.transform.Find("txt_Title").gameObject.GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI trendValue = widgetInstance.transform.Find("obj_Value/txt_Value").gameObject.GetComponent<TextMeshProUGUI>();
+        TextMeshProUGUI trendUnit = widgetInstance.transform.Find("obj_Value/txt_Unit").gameObject.GetComponent<TextMeshProUGUI>();
+
+        if (!widgetInstance.name.Contains("AO"))
+        {
+            if (showAddr.Contains(addr))
+                widgetInstance.gameObject.SetActive(true);
+            else
+                widgetInstance.gameObject.SetActive(false);
+        }
+
+        int addressLowIndex = int.Parse(addr) < 200 ? int.Parse(addr) : int.Parse(addr) - 200;
+        int addressHighIndex = int.Parse(useLong) < 200 ? int.Parse(useLong) : int.Parse(useLong) - 200;
+        float newLowValue = parsedPollingData[addressLowIndex];
+        float newHighValue = parsedPollingData[addressHighIndex];
+        if (newLowValue >= 32768)
+        { // 16비트 정수에서 음수 값 처리
+            newLowValue -= 65536;
+        }
+        if (newHighValue >= 32768)
+        {
+            newHighValue -= 65536;
+        }
+
+        float finalValue = newHighValue * 65536 + newLowValue;
+        float oldValue = float.Parse(trendValue.text);
+
+        trendName.text = tagName;
+        if (multiply == "1.0" || multiply == "1")
+            trendValue.text = (finalValue / float.Parse(multiply)).ToString();
+        else if (multiply == "10.0" || multiply == "10")
+            trendValue.text = (finalValue / float.Parse(multiply)).ToString("F1");
+        else if (multiply == "100.0" || multiply == "100")
+            trendValue.text = (finalValue / float.Parse(multiply)).ToString("F2");
+        trendUnit.text = unit;
+
+        // Debug.Log($"UpdateUseLongWidgetInstance : {addr}, {tagName}, {oldValue}, {finalValue}");
+        ChangeWidgetColor(widgetInstance, trendName, trendValue, trendUnit, oldValue, finalValue);
 
         // 설정값이 있을 경우 설정값도 업데이트
         if (widgetInstance.transform.Find("obj_SetValue") != null)
